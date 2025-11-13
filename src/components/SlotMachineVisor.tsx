@@ -14,9 +14,10 @@ interface SlotMachineVisorProps {
   isSpinning: boolean;
   finalPrize: string;
   onSpinComplete: () => void;
+  shouldReset: boolean;
 }
 
-export const SlotMachineVisor = ({ slices, isSpinning, finalPrize, onSpinComplete }: SlotMachineVisorProps) => {
+export const SlotMachineVisor = ({ slices, isSpinning, finalPrize, onSpinComplete, shouldReset }: SlotMachineVisorProps) => {
   const [items, setItems] = useState<SlotItem[]>([]);
   const [offset, setOffset] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
@@ -59,8 +60,17 @@ export const SlotMachineVisor = ({ slices, isSpinning, finalPrize, onSpinComplet
         setOffset(finalOffset);
       }, 100);
     }
-    // NÃO resetar quando não está girando - manter o estado final
+    // Resetar quando shouldReset for true
   }, [isSpinning, finalPrize, slices]);
+
+  // Reset do visor quando shouldReset mudar
+  useEffect(() => {
+    if (shouldReset) {
+      setOffset(0);
+      setItems(slices.slice(0, 5).map((s, i) => ({ ...s, id: i })));
+      setIsComplete(false);
+    }
+  }, [shouldReset, slices]);
 
   useEffect(() => {
     if (isSpinning && offset < 0 && !isComplete) {
