@@ -255,14 +255,14 @@ export default function Roleta() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 overflow-hidden">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 pb-32 overflow-hidden">
       {/* Logo */}
-      <div className="w-full max-w-[140px] mb-6">
+      <div className="w-full max-w-[140px] mb-3">
         <img src="/logo.svg" alt="Logo" className="w-full h-auto mx-auto" />
       </div>
 
       {/* Wheel Section - Larger on mobile */}
-      <div className="relative w-full max-w-[400px] aspect-square flex items-center justify-center mb-6">
+      <div className="relative w-full max-w-[400px] aspect-square flex items-center justify-center mb-3">
         {/* Pointer (fixed at top) */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 z-20 w-16 h-16 md:w-20 md:h-20">
           <img src="/svg/ponteiro.svg" alt="Ponteiro" className="w-full h-full drop-shadow-lg" />
