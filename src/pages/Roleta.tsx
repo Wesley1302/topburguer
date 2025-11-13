@@ -65,7 +65,6 @@ export default function Roleta() {
   const [prizeCode, setPrizeCode] = useState<string>("");
   const [couponNumber, setCouponNumber] = useState<string>("");
   const [timeLeft, setTimeLeft] = useState(3599);
-  const [spinsRemaining, setSpinsRemaining] = useState(3);
   const [showLimitModal, setShowLimitModal] = useState(false);
   const [limitMessage, setLimitMessage] = useState("");
   const [canClaim, setCanClaim] = useState(true);
@@ -75,17 +74,12 @@ export default function Roleta() {
   const audioContextRef = useRef<AudioContext | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Limpar localStorage ao carregar a página para sempre resetar o cadastro
   useEffect(() => {
-    const savedWhatsapp = localStorage.getItem("roleta_whatsapp");
-    const savedName = localStorage.getItem("roleta_name");
-    if (savedWhatsapp && savedName) {
-      setWhatsapp(savedWhatsapp);
-      setName(savedName);
-      setIsRegistered(true);
-      setShowRegisterModal(false);
-      checkSpinsRemaining(savedWhatsapp);
-    }
+    localStorage.removeItem("roleta_whatsapp");
+    localStorage.removeItem("roleta_name");
   }, []);
+
 
   useEffect(() => {
     if (showPrizeModal && timeLeft > 0) {
@@ -142,19 +136,6 @@ export default function Roleta() {
     return "";
   };
 
-  const checkSpinsRemaining = async (phone: string) => {
-    try {
-      const { count } = await supabase
-        .from("spins")
-        .select("*", { count: "exact", head: true })
-        .eq("whatsapp", phone)
-        .gte("created_at", new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString());
-      
-      setSpinsRemaining(3 - (count || 0));
-    } catch (error) {
-      console.error("[Roleta] Error checking spins:", error);
-    }
-  };
 
   const handleRegister = async () => {
     const trimmedName = name.trim();
@@ -189,7 +170,6 @@ export default function Roleta() {
       setName(trimmedName);
       setIsRegistered(true);
       setShowRegisterModal(false);
-      await checkSpinsRemaining(normalizedPhone);
       toast.success("Cadastro realizado com sucesso!");
     } catch (error: any) {
       console.error("[Roleta] Registration error:", error);
@@ -198,7 +178,7 @@ export default function Roleta() {
   };
 
   const handleSpin = async () => {
-    if (spinning || spinsRemaining <= 0) return;
+    if (spinning) return;
 
     setSpinning(true);
     
@@ -208,14 +188,10 @@ export default function Roleta() {
       });
 
       if (error) {
-        if (error.message?.includes("429") || error.message?.includes("limit_reached")) {
-          const nextAvailable = new Date(Date.now() + 12 * 60 * 60 * 1000);
-          setLimitMessage(`Você já usou seus 3 giros! Volte às ${nextAvailable.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`);
-          setShowLimitModal(true);
-          setSpinning(false);
-          return;
-        }
-        throw error;
+        console.error("[Roleta] Spin error:", error);
+        toast.error("Erro ao girar a roleta");
+        setSpinning(false);
+        return;
       }
 
       const { prize, targetAngle, claimedToday } = data;
@@ -301,7 +277,6 @@ export default function Roleta() {
 
       setTimeout(() => {
         setSpinning(false);
-        checkSpinsRemaining(whatsapp);
       }, 5000);
       
     } catch (error) {
@@ -334,8 +309,8 @@ export default function Roleta() {
 
       {/* Wheel Section - Larger on mobile */}
       <div className="relative w-full max-w-[400px] aspect-square flex items-center justify-center mb-0">
-        {/* Pointer (fixed at top) */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 w-16 h-16 md:w-20 md:h-20">
+        {/* Pointer (fixed at top) - Reduced size */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 w-10 h-10 md:w-12 md:h-12">
           <img src="/svg/ponteiro.svg" alt="Ponteiro" className="w-full h-full drop-shadow-lg" />
         </div>
 
@@ -358,15 +333,12 @@ export default function Roleta() {
           <h1 className="text-3xl md:text-4xl font-bold text-primary animate-glow">
             Está com sorte?
           </h1>
-          <p className="text-muted-foreground text-sm md:text-base">
-            Você tem {spinsRemaining} {spinsRemaining === 1 ? "giro disponível" : "giros disponíveis"}
-          </p>
         </div>
 
         <Button
           size="lg"
           onClick={handleSpin}
-          disabled={spinning || spinsRemaining <= 0 || !isRegistered}
+          disabled={spinning || !isRegistered}
           className="w-full max-w-xs h-16 text-xl font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all disabled:opacity-50"
         >
           {spinning ? "GIRANDO..." : "GIRAR AGORA!"}
