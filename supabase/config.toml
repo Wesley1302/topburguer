@@ -1,1 +1,10 @@
 project_id = "juepotxhyfxigvbzsyhc"
+
+[functions.register-lead]
+verify_jwt = false
+
+[functions.spin-wheel]
+verify_jwt = false
+
+[functions.claim-coupon]
+verify_jwt = false

@@ -223,59 +223,51 @@ export default function Roleta() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-start p-4 overflow-hidden">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 overflow-hidden">
       {/* Logo */}
-      <div className="w-full max-w-[120px] mb-8 mt-4">
-        <img src="/logo.svg" alt="Logo" className="w-full h-auto" />
+      <div className="w-full max-w-[140px] mb-6">
+        <img src="/logo.svg" alt="Logo" className="w-full h-auto mx-auto" />
       </div>
 
-      {/* Main Content */}
-      <div className="w-full max-w-4xl flex flex-col lg:flex-row items-center justify-center gap-8">
-        {/* Wheel Section */}
-        <div className="relative w-full max-w-md aspect-square flex items-center justify-center">
-          {/* Pointer (fixed at top) */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 z-20 w-16 h-16">
-            <img src="/svg/ponteiro.svg" alt="Ponteiro" className="w-full h-full drop-shadow-lg" />
-          </div>
-
-          {/* Rotating Wheel */}
-          <motion.div
-            className="w-full h-full relative"
-            animate={{ rotate: rotation }}
-            transition={{
-              duration: spinning ? 5 : 0,
-              ease: spinning ? [0.25, 0.1, 0.25, 1] : "linear",
-            }}
-          >
-            <img src="/svg/roleta.svg" alt="Roleta" className="w-full h-full" />
-          </motion.div>
+      {/* Wheel Section - Larger on mobile */}
+      <div className="relative w-full max-w-[400px] aspect-square flex items-center justify-center mb-6">
+        {/* Pointer (fixed at top) */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 z-20 w-16 h-16 md:w-20 md:h-20">
+          <img src="/svg/ponteiro.svg" alt="Ponteiro" className="w-full h-full drop-shadow-lg" />
         </div>
 
-        {/* Instructions & Button */}
-        <div className="flex flex-col items-center gap-6 max-w-md">
-          <div className="text-center space-y-2">
-            <h1 className="text-3xl md:text-4xl font-bold text-primary animate-glow">
-              GIRE E GANHE!
-            </h1>
-            <p className="text-muted-foreground text-sm md:text-base">
-              Você tem {spinsRemaining} {spinsRemaining === 1 ? "giro disponível" : "giros disponíveis"}
-            </p>
-          </div>
+        {/* Rotating Wheel */}
+        <motion.div
+          className="w-full h-full relative"
+          animate={{ rotate: rotation }}
+          transition={{
+            duration: spinning ? 5 : 0,
+            ease: spinning ? [0.25, 0.1, 0.25, 1] : "linear",
+          }}
+        >
+          <img src="/svg/roleta.svg" alt="Roleta" className="w-full h-full" />
+        </motion.div>
+      </div>
 
-          <Button
-            size="lg"
-            onClick={handleSpin}
-            disabled={spinning || spinsRemaining <= 0 || !isRegistered}
-            className="w-full max-w-xs h-16 text-xl font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all disabled:opacity-50"
-          >
-            {spinning ? "GIRANDO..." : "GIRAR AGORA!"}
-          </Button>
-
-          <div className="text-center text-xs text-muted-foreground space-y-1">
-            <p>🎁 3 chances a cada 12 horas</p>
-            <p>🎫 Até 3 promoções por dia</p>
-          </div>
+      {/* Instructions & Button */}
+      <div className="flex flex-col items-center gap-4 w-full max-w-md">
+        <div className="text-center space-y-2">
+          <h1 className="text-3xl md:text-4xl font-bold text-primary animate-glow">
+            GIRE E GANHE!
+          </h1>
+          <p className="text-muted-foreground text-sm md:text-base">
+            Você tem {spinsRemaining} {spinsRemaining === 1 ? "giro disponível" : "giros disponíveis"}
+          </p>
         </div>
+
+        <Button
+          size="lg"
+          onClick={handleSpin}
+          disabled={spinning || spinsRemaining <= 0 || !isRegistered}
+          className="w-full max-w-xs h-16 text-xl font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all disabled:opacity-50"
+        >
+          {spinning ? "GIRANDO..." : "GIRAR AGORA!"}
+        </Button>
       </div>
 
       {/* Registration Modal */}
