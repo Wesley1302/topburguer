@@ -308,7 +308,7 @@ export default function Roleta() {
         if (!isRegistered) return;
         setShowRegisterModal(open);
       }}>
-        <DialogContent className="sm:max-w-md bg-card border-border sm:top-[20%]" onInteractOutside={(e) => {
+        <DialogContent className="sm:max-w-md bg-card border-border sm:top-[5%]" onInteractOutside={(e) => {
           // Prevent closing when clicking outside if not registered
           if (!isRegistered) e.preventDefault();
         }} onEscapeKeyDown={(e) => {
