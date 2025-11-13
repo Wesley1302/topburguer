@@ -230,7 +230,7 @@ export default function Roleta() {
       const tickInterval = setInterval(playTick, 100);
       
       const spins = 3 + Math.random() * 2;
-      const finalRotation = 360 * spins + targetAngle;
+      const finalRotation = rotation + 360 * spins + targetAngle;
       
       setRotation(finalRotation);
 
