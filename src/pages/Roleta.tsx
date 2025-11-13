@@ -339,9 +339,14 @@ export default function Roleta() {
               <Label htmlFor="whatsapp">WhatsApp</Label>
               <Input
                 id="whatsapp"
+                type="tel"
+                inputMode="numeric"
                 placeholder="(00) 00000-0000"
                 value={whatsapp}
-                onChange={(e) => setWhatsapp(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/\D/g, "");
+                  setWhatsapp(value);
+                }}
                 className="bg-background border-border"
               />
             </div>
