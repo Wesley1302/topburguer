@@ -403,6 +403,143 @@ export default function Roleta() {
                       <li>Pronto! É só retirar e aproveitar! 😋</li>
                     </ol>
                   </div>
+                </DialogDescription>
+              </DialogHeader>
+              <Button
+                onClick={handleClaimCoupon}
+                className="w-full bg-green-600 hover:bg-green-700 text-white text-lg py-6"
+              >
+                💬 RESGATAR NO WHATSAPP AGORA
+              </Button>
+            </DialogContent>
+          </Dialog>
+        )}
+      </AnimatePresence>
+
+      {/* Limit Modal */}
+      <AnimatePresence>
+        {showLimitModal && (
+          <Dialog open={showLimitModal} onOpenChange={setShowLimitModal}>
+            <DialogContent className="sm:max-w-md bg-card border-border">
+              <DialogHeader>
+                <DialogTitle className="text-xl font-bold text-center text-primary">
+                  Limite Atingido
+                </DialogTitle>
+                <DialogDescription className="text-center pt-4">
+                  <p className="text-base text-foreground">{limitMessage}</p>
+                </DialogDescription>
+              </DialogHeader>
+              <Button
+                onClick={() => setShowLimitModal(false)}
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+              >
+                Entendi
+              </Button>
+            </DialogContent>
+          </Dialog>
+        )}
+      </AnimatePresence>
+
+      {/* Registration Modal */}
+      <Dialog open={showRegisterModal} onOpenChange={(open) => {
+        // Prevent closing the modal
+        if (!isRegistered) return;
+        setShowRegisterModal(open);
+      }}>
+        <DialogContent className={`sm:max-w-md bg-card border-border transition-all duration-300 ${keyboardVisible ? 'fixed top-4 translate-y-0' : 'sm:top-[5%]'}`} onInteractOutside={(e) => {
+          // Prevent closing when clicking outside if not registered
+          if (!isRegistered) e.preventDefault();
+        }} onEscapeKeyDown={(e) => {
+          // Prevent closing with ESC key if not registered
+          if (!isRegistered) e.preventDefault();
+        }}>
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-center text-primary">
+              Cadastre-se para Participar
+            </DialogTitle>
+            <DialogDescription className="text-center text-muted-foreground">
+              Preencha seus dados para começar a girar
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Nome</Label>
+              <Input
+                id="name"
+                placeholder="Seu nome completo"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                maxLength={60}
+                className="bg-background border-border"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="whatsapp">WhatsApp</Label>
+              <Input
+                id="whatsapp"
+                type="tel"
+                inputMode="numeric"
+                placeholder="(00) 00000-0000"
+                value={whatsapp}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/\D/g, "");
+                  setWhatsapp(value);
+                }}
+                className="bg-background border-border"
+              />
+            </div>
+            <Button
+              onClick={handleRegister}
+              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+            >
+              Testar minha sorte
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Prize Modal */}
+      <AnimatePresence>
+        {showPrizeModal && canClaim && (
+          <Dialog open={showPrizeModal} onOpenChange={setShowPrizeModal}>
+            <DialogContent className="sm:max-w-lg bg-card border-border">
+              <DialogHeader>
+                <DialogTitle className="text-2xl font-bold text-center text-primary">
+                  🎉 PARABÉNS, VOCÊ GANHOU! 🎉
+                </DialogTitle>
+                <DialogDescription className="text-center space-y-4 pt-4">
+                  <p className="text-lg font-semibold text-foreground">
+                    Sua sorte chegou!
+                  </p>
+                  <p className="text-base text-foreground">
+                    Você acabou de ganhar: <span className="font-bold text-primary">{currentPrize}</span>
+                  </p>
+                  <div className="bg-secondary/50 p-4 rounded-lg border border-primary/20">
+                    <p className="text-sm font-medium text-muted-foreground mb-2">
+                      🎫 SEU CUPOM EXCLUSIVO:
+                    </p>
+                    <p className="text-3xl font-bold text-primary tracking-wider">
+                      {couponNumber || "TOP-— — —"}
+                    </p>
+                  </div>
+                  <div className="bg-destructive/10 p-3 rounded-lg border border-destructive/20">
+                    <p className="text-sm font-medium text-destructive">
+                      ⏰ ATENÇÃO: SUA OFERTA EXPIRA EM:
+                    </p>
+                    <p className="text-2xl font-bold text-destructive mt-1">
+                      {formatTime(timeLeft)}
+                    </p>
+                  </div>
+                  <div className="text-sm text-muted-foreground space-y-2 text-left">
+                    <p className="font-semibold">⚠️ Importante: Cada pessoa pode resgatar até 3 promoções por dia.</p>
+                    <p className="font-semibold text-primary">🚀 COMO RESGATAR AGORA:</p>
+                    <ol className="list-decimal list-inside space-y-1 pl-2">
+                      <li>Clique no botão verde abaixo</li>
+                      <li>Fale com nossa atendente no WhatsApp</li>
+                      <li>Informe seu cupom {couponNumber || "TOP-XXX"} e qual prêmio você ganhou</li>
+                      <li>Pronto! É só retirar e aproveitar! 😋</li>
+                    </ol>
+                  </div>
                   <Button
                     size="lg"
                     onClick={handleClaimCoupon}
