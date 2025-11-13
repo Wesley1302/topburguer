@@ -423,7 +423,7 @@ export default function Roleta() {
       <AnimatePresence>
         {showPrizeModal && canClaim && prizeCode === 'XTUDO' && (
           <Dialog open={showPrizeModal} onOpenChange={handleCloseModal}>
-            <DialogContent className="w-[95vw] max-w-md mx-auto bg-card border-border max-h-[95vh] overflow-y-auto p-4 sm:p-6">
+            <DialogContent className="w-[88vw] max-w-sm mx-auto bg-card border-border max-h-[92vh] overflow-y-auto p-4 sm:p-6">
               <DialogHeader className="space-y-2">
                 <DialogTitle className="text-xl sm:text-2xl font-bold text-center text-primary">
                   🎉 PARABÉNS, VOCÊ GANHOU!
@@ -484,7 +484,7 @@ export default function Roleta() {
       <AnimatePresence>
         {showPrizeModal && canClaim && prizeCode === 'HOTDOG' && (
           <Dialog open={showPrizeModal} onOpenChange={handleCloseModal}>
-            <DialogContent className="w-[95vw] max-w-md mx-auto bg-card border-border max-h-[95vh] overflow-y-auto p-4 sm:p-6">
+            <DialogContent className="w-[88vw] max-w-sm mx-auto bg-card border-border max-h-[92vh] overflow-y-auto p-4 sm:p-6">
               <DialogHeader className="space-y-2">
                 <DialogTitle className="text-xl sm:text-2xl font-bold text-center text-primary">
                   🎉 PARABÉNS, VOCÊ GANHOU!
@@ -545,7 +545,7 @@ export default function Roleta() {
       <AnimatePresence>
         {showPrizeModal && canClaim && prizeCode === 'COMBO' && (
           <Dialog open={showPrizeModal} onOpenChange={handleCloseModal}>
-            <DialogContent className="w-[95vw] max-w-md mx-auto bg-card border-border max-h-[95vh] overflow-y-auto p-4 sm:p-6">
+            <DialogContent className="w-[88vw] max-w-sm mx-auto bg-card border-border max-h-[92vh] overflow-y-auto p-4 sm:p-6">
               <DialogHeader className="space-y-2">
                 <DialogTitle className="text-xl sm:text-2xl font-bold text-center text-primary">
                   🎉 PARABÉNS, VOCÊ GANHOU!
