@@ -6,13 +6,27 @@ interface SlotMachineLeverProps {
 }
 
 export const SlotMachineLever = ({ onPull, disabled }: SlotMachineLeverProps) => {
+  const handlePull = () => {
+    if (!disabled) {
+      onPull();
+    }
+  };
+
   return (
-    <div className="relative w-20 h-64 flex items-start justify-center">
+    <div className="relative w-24 h-64 flex items-start justify-center">
       <motion.button
-        onClick={onPull}
+        onClick={handlePull}
         disabled={disabled}
-        className="relative group"
-        whileTap={!disabled ? { y: 120 } : {}}
+        className="relative group origin-bottom"
+        whileTap={!disabled ? { 
+          rotate: -45,
+          transition: {
+            type: "spring",
+            stiffness: 200,
+            damping: 15,
+          }
+        } : {}}
+        animate={{ rotate: 0 }}
         transition={{
           type: "spring",
           stiffness: 300,

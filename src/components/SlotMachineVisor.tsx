@@ -19,6 +19,7 @@ interface SlotMachineVisorProps {
 export const SlotMachineVisor = ({ slices, isSpinning, finalPrize, onSpinComplete }: SlotMachineVisorProps) => {
   const [items, setItems] = useState<SlotItem[]>([]);
   const [offset, setOffset] = useState(0);
+  const [isComplete, setIsComplete] = useState(false);
   const ITEM_HEIGHT = 120;
   const VISIBLE_ITEMS = 3;
   const TOTAL_HEIGHT = ITEM_HEIGHT * VISIBLE_ITEMS;
@@ -29,6 +30,8 @@ export const SlotMachineVisor = ({ slices, isSpinning, finalPrize, onSpinComplet
     const sequence: SlotItem[] = [];
     
     if (isSpinning) {
+      setIsComplete(false);
+      
       // Adicionar muitos itens aleatórios
       for (let i = 0; i < 30; i++) {
         const randomSlice = slices[Math.floor(Math.random() * slices.length)];
@@ -55,23 +58,21 @@ export const SlotMachineVisor = ({ slices, isSpinning, finalPrize, onSpinComplet
         const finalOffset = -(sequence.length - 1) * ITEM_HEIGHT + ITEM_HEIGHT;
         setOffset(finalOffset);
       }, 100);
-    } else {
-      // Reset
-      setOffset(0);
-      setItems(slices.slice(0, 5).map((s, i) => ({ ...s, id: i })));
     }
+    // NÃO resetar quando não está girando - manter o estado final
   }, [isSpinning, finalPrize, slices]);
 
   useEffect(() => {
-    if (isSpinning && offset < 0) {
+    if (isSpinning && offset < 0 && !isComplete) {
       const duration = 5000; // 5 segundos
       const timer = setTimeout(() => {
+        setIsComplete(true);
         onSpinComplete();
       }, duration);
       
       return () => clearTimeout(timer);
     }
-  }, [isSpinning, offset, onSpinComplete]);
+  }, [isSpinning, offset, onSpinComplete, isComplete]);
 
   return (
     <div className="relative w-full max-w-[280px] mx-auto">
