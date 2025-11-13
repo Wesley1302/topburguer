@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { WheelCanvas } from "@/components/WheelCanvas";
+import { SlotMachineVisor } from "@/components/SlotMachineVisor";
+import { SlotMachineLever } from "@/components/SlotMachineLever";
 
 const PRIZES = {
   COMBO: "Combo Completo (X-tudo + Batata PP + Coca 250ml) de R$28 por apenas R$19,90",
@@ -27,28 +28,16 @@ const WHATSAPP_LINKS = {
   HOTDOG: "https://encurtador.com.br/CjgU",
 };
 
-// Mapeamento das fatias da roleta (6 fatias de 60° cada)
-// Cores néon para destaque
-const WHEEL_SLICES = [
-  { id: 1, name: 'LOSE', angle: 0, displayName: 'NÃO\nGANHOU', color: '#e5e7eb', textColor: '#ff0040', canWin: false },
-  { id: 2, name: 'HOTDOG', angle: 60, displayName: 'Hot-Dog\nSalsicha', color: '#451a03', textColor: '#39ff14', canWin: true, icon: '' },
-  { id: 3, name: 'LOSE', angle: 120, displayName: 'NÃO\nGANHOU', color: '#e5e7eb', textColor: '#ff0040', canWin: false },
-  { id: 4, name: 'XTUDO', angle: 180, displayName: 'X-tudo', color: '#eab308', textColor: '#39ff14', canWin: true, icon: '' },
-  { id: 5, name: 'LOSE', angle: 240, displayName: 'NÃO\nGANHOU', color: '#e5e7eb', textColor: '#ff0040', canWin: false },
-  { id: 6, name: 'COMBO', angle: 300, displayName: 'Combo\nSimples', color: '#f97316', textColor: '#39ff14', canWin: true, icon: '' }
+// Itens do caça-níquel
+const SLOT_ITEMS = [
+  { id: 1, name: 'LOSE', displayName: 'NÃO\nGANHOU', textColor: '#ff0040', canWin: false },
+  { id: 2, name: 'HOTDOG', displayName: 'Hot-Dog', textColor: '#39ff14', canWin: true },
+  { id: 3, name: 'LOSE', displayName: 'NÃO\nGANHOU', textColor: '#ff0040', canWin: false },
+  { id: 4, name: 'XTUDO', displayName: 'X-tudo', textColor: '#39ff14', canWin: true },
+  { id: 5, name: 'LOSE', displayName: 'NÃO\nGANHOU', textColor: '#ff0040', canWin: false },
+  { id: 6, name: 'COMBO', displayName: 'Combo Simples', textColor: '#39ff14', canWin: true }
 ];
 
-// Função para detectar qual prêmio está sob o ponteiro fixo (cada fatia = 60°)
-const detectPrizeAtPointer = (finalRotation: number): string => {
-  const normalizedAngle = ((finalRotation % 360) + 360) % 360;
-  const pointerAngle = (360 - normalizedAngle) % 360;
-  
-  // Cada fatia tem 60 graus (360 / 6 = 60)
-  const sliceIndex = Math.floor(pointerAngle / 60) % 6;
-  const slice = WHEEL_SLICES[sliceIndex];
-  
-  return slice.name;
-};
 
 export default function Roleta() {
   const navigate = useNavigate();
@@ -57,8 +46,8 @@ export default function Roleta() {
   const [isRegistered, setIsRegistered] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(true);
   const [spinning, setSpinning] = useState(false);
-  const [rotation, setRotation] = useState(0);
   const [showPrizeModal, setShowPrizeModal] = useState(false);
+  const [finalPrize, setFinalPrize] = useState("");
   const [currentPrize, setCurrentPrize] = useState<string>("");
   const [prizeCode, setPrizeCode] = useState<string>("");
   const [couponNumber, setCouponNumber] = useState<string>("");
@@ -67,42 +56,10 @@ export default function Roleta() {
   const [limitMessage, setLimitMessage] = useState("");
   const [canClaim, setCanClaim] = useState(true);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
-  const [wheelSlices, setWheelSlices] = useState(WHEEL_SLICES);
   
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-
-  // Gerar ícones ao carregar
-  useEffect(() => {
-    const generateIcons = async () => {
-      try {
-        const iconTypes = ['burger', 'hotdog', 'combo'];
-        const generatedIcons: Record<string, string> = {};
-
-        for (const type of iconTypes) {
-          const { data, error } = await supabase.functions.invoke('generate-wheel-icons', {
-            body: { iconType: type }
-          });
-
-          if (!error && data?.imageUrl) {
-            generatedIcons[type] = data.imageUrl;
-          }
-        }
-
-        setWheelSlices(prev => prev.map(slice => {
-          if (slice.name === 'XTUDO') return { ...slice, icon: generatedIcons.burger };
-          if (slice.name === 'HOTDOG') return { ...slice, icon: generatedIcons.hotdog };
-          if (slice.name === 'COMBO') return { ...slice, icon: generatedIcons.combo };
-          return slice;
-        }));
-      } catch (error) {
-        console.error('Error generating icons:', error);
-      }
-    };
-
-    generateIcons();
-  }, []);
 
   // Limpar localStorage ao carregar a página para sempre resetar o cadastro
   useEffect(() => {
@@ -227,17 +184,8 @@ export default function Roleta() {
       const { prize, targetAngle, claimedToday } = data;
       console.log('Spin result:', { prize, targetAngle, claimedToday });
       
-      // Encontrar a fatia do prêmio sorteado (apenas fatias que podem ganhar)
-      const targetSlice = wheelSlices.find(s => s.name === prize && s.canWin);
-      if (!targetSlice) {
-        toast.error("Erro ao processar o prêmio");
-        setSpinning(false);
-        return;
-      }
-
-      // Calcular ângulo aleatório dentro da fatia do prêmio (60 graus cada fatia)
-      const randomOffset = Math.random() * 60;
-      const prizeAngle = targetSlice.angle + randomOffset;
+      // Salvar prêmio para exibir depois
+      setPrizeCode(prize);
       
       // Create Web Audio API tick sound
       if (!audioContextRef.current) {
@@ -273,39 +221,13 @@ export default function Roleta() {
 
       const tickInterval = setInterval(playTick, 100);
       
-      const spins = 3 + Math.random() * 2;
-      // Inverter o ângulo porque queremos que a fatia gire até o ponteiro fixo
-      const finalRotation = rotation + 360 * spins + (360 - prizeAngle);
-      
-      setRotation(finalRotation);
+      // Definir o prêmio final para o slot
+      setFinalPrize(prize);
 
       // Parar som após 5s (fim da animação)
       setTimeout(() => {
         clearInterval(tickInterval);
       }, 5000);
-
-      // Mostrar modal 3 segundos APÓS a roleta parar (8s total)
-      setTimeout(() => {
-        // Detectar o prêmio baseado no ângulo final
-        const detectedPrize = detectPrizeAtPointer(finalRotation);
-        
-        console.log('Prêmio esperado:', prize);
-        console.log('Prêmio detectado:', detectedPrize);
-        console.log('Ângulo final normalizado:', ((finalRotation % 360) + 360) % 360);
-        
-        if (claimedToday >= 3) {
-          setLimitMessage("Você já resgatou suas 3 promoções de hoje! Volte amanhã para mais chances!");
-          setShowLimitModal(true);
-          setCanClaim(false);
-        } else {
-          setPrizeCode(prize);
-          setCurrentPrize(PRIZES[prize as keyof typeof PRIZES]);
-          setCouponNumber(COUPONS[prize as keyof typeof COUPONS]);
-          setShowPrizeModal(true);
-          setTimeLeft(3599);
-          setCanClaim(true);
-        }
-      }, 8000);
 
       setTimeout(() => {
         setSpinning(false);
@@ -316,6 +238,27 @@ export default function Roleta() {
       setSpinning(false);
       toast.error("Erro ao girar. Tente novamente.");
     }
+  };
+
+  const handleSlotComplete = () => {
+    // Mostrar modal 3 segundos após o slot parar
+    setTimeout(() => {
+      if (prizeCode) {
+        const claimedToday = 0; // Esta informação vem do backend na resposta do spin
+        
+        if (claimedToday >= 3) {
+          setLimitMessage("Você já resgatou suas 3 promoções de hoje! Volte amanhã para mais chances!");
+          setShowLimitModal(true);
+          setCanClaim(false);
+        } else {
+          setCurrentPrize(PRIZES[prizeCode as keyof typeof PRIZES]);
+          setCouponNumber(COUPONS[prizeCode as keyof typeof COUPONS]);
+          setShowPrizeModal(true);
+          setTimeLeft(3599);
+          setCanClaim(true);
+        }
+      }
+    }, 3000);
   };
 
   const handleClaimCoupon = async () => {
@@ -333,48 +276,31 @@ export default function Roleta() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-start pt-2 p-4 pb-48 overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-red-950 to-gray-900 flex flex-col items-center justify-start pt-4 p-4 pb-48 overflow-hidden">
       {/* Logo */}
-      <div className="w-full max-w-[120px] mb-0">
+      <div className="w-full max-w-[120px] mb-6">
         <img src="/logo.svg" alt="Logo" className="w-full h-auto mx-auto" />
       </div>
 
-      {/* Wheel Section - Larger on mobile */}
-      <div className="relative w-full max-w-[400px] aspect-square flex items-center justify-center mb-0">
-        {/* Pointer (fixed at top) - Reduced size */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 w-10 h-10 md:w-12 md:h-12">
-          <img src="/svg/ponteiro.svg" alt="Ponteiro" className="w-full h-full drop-shadow-lg" />
+      {/* Slot Machine Section */}
+      <div className="relative w-full flex items-start justify-center gap-4 mb-8">
+        {/* Visor do Caça-Níquel */}
+        <div className="flex-shrink-0">
+          <SlotMachineVisor 
+            slices={SLOT_ITEMS}
+            isSpinning={spinning}
+            finalPrize={finalPrize}
+            onSpinComplete={handleSlotComplete}
+          />
         </div>
 
-        {/* Rotating Wheel - SVG programático */}
-        <motion.div
-          className="w-full h-full relative"
-          animate={{ rotate: rotation }}
-          transition={{
-            duration: spinning ? 5 : 0,
-            ease: spinning ? [0.25, 0.1, 0.25, 1] : "linear",
-          }}
-        >
-          <WheelCanvas slices={wheelSlices} />
-        </motion.div>
-      </div>
-
-      {/* Instructions & Button */}
-      <div className="flex flex-col items-center gap-4 w-full max-w-md">
-        <div className="text-center space-y-2">
-          <h1 className="text-3xl md:text-4xl font-bold text-primary animate-glow">
-            Está com sorte?
-          </h1>
+        {/* Alavanca */}
+        <div className="flex-shrink-0">
+          <SlotMachineLever
+            onPull={handleSpin}
+            disabled={!isRegistered || spinning}
+          />
         </div>
-
-        <Button
-          size="lg"
-          onClick={handleSpin}
-          disabled={spinning || !isRegistered}
-          className="w-full max-w-xs h-16 text-xl font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all disabled:opacity-50"
-        >
-          {spinning ? "GIRANDO..." : "GIRAR AGORA!"}
-        </Button>
       </div>
 
       {/* Registration Modal */}

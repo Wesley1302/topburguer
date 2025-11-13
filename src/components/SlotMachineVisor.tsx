@@ -1,0 +1,160 @@
+import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+
+interface SlotItem {
+  id: number;
+  name: string;
+  displayName: string;
+  textColor: string;
+  canWin: boolean;
+}
+
+interface SlotMachineVisorProps {
+  slices: SlotItem[];
+  isSpinning: boolean;
+  finalPrize: string;
+  onSpinComplete: () => void;
+}
+
+export const SlotMachineVisor = ({ slices, isSpinning, finalPrize, onSpinComplete }: SlotMachineVisorProps) => {
+  const [items, setItems] = useState<SlotItem[]>([]);
+  const [offset, setOffset] = useState(0);
+  const ITEM_HEIGHT = 120;
+  const VISIBLE_ITEMS = 3;
+  const TOTAL_HEIGHT = ITEM_HEIGHT * VISIBLE_ITEMS;
+
+  // Criar sequência de itens para o slot
+  useEffect(() => {
+    // Criar uma sequência longa de itens aleatórios
+    const sequence: SlotItem[] = [];
+    
+    if (isSpinning) {
+      // Adicionar muitos itens aleatórios
+      for (let i = 0; i < 30; i++) {
+        const randomSlice = slices[Math.floor(Math.random() * slices.length)];
+        sequence.push({ ...randomSlice, id: i });
+      }
+      
+      // Adicionar "NÃO GANHOU" nos últimos itens (mas não no final)
+      const loseSlice = slices.find(s => !s.canWin);
+      if (loseSlice) {
+        sequence.push({ ...loseSlice, id: sequence.length });
+        sequence.push({ ...loseSlice, id: sequence.length });
+      }
+      
+      // Adicionar o prêmio final
+      const finalSlice = slices.find(s => s.name === finalPrize);
+      if (finalSlice) {
+        sequence.push({ ...finalSlice, id: sequence.length });
+      }
+      
+      setItems(sequence);
+      
+      // Animar
+      setTimeout(() => {
+        const finalOffset = -(sequence.length - 1) * ITEM_HEIGHT + ITEM_HEIGHT;
+        setOffset(finalOffset);
+      }, 100);
+    } else {
+      // Reset
+      setOffset(0);
+      setItems(slices.slice(0, 5).map((s, i) => ({ ...s, id: i })));
+    }
+  }, [isSpinning, finalPrize, slices]);
+
+  useEffect(() => {
+    if (isSpinning && offset < 0) {
+      const duration = 5000; // 5 segundos
+      const timer = setTimeout(() => {
+        onSpinComplete();
+      }, duration);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isSpinning, offset, onSpinComplete]);
+
+  return (
+    <div className="relative w-full max-w-[280px] mx-auto">
+      {/* Visor do caça-níquel */}
+      <div 
+        className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-2xl p-4 shadow-2xl overflow-hidden"
+        style={{ height: `${TOTAL_HEIGHT + 32}px` }}
+      >
+        {/* Bordas metálicas */}
+        <div className="absolute inset-0 rounded-2xl border-4 border-gray-600 shadow-inner pointer-events-none" />
+        <div className="absolute inset-2 rounded-xl border-2 border-gray-700 pointer-events-none" />
+        
+        {/* Área visível do slot */}
+        <div 
+          className="relative bg-black rounded-xl overflow-hidden"
+          style={{ height: `${TOTAL_HEIGHT}px` }}
+        >
+          {/* Highlight no centro */}
+          <div 
+            className="absolute left-0 right-0 z-10 border-t-4 border-b-4 border-yellow-400 pointer-events-none"
+            style={{ 
+              top: `${ITEM_HEIGHT}px`, 
+              height: `${ITEM_HEIGHT}px`,
+              boxShadow: 'inset 0 0 20px rgba(250, 204, 21, 0.3)'
+            }}
+          />
+          
+          {/* Itens rolando */}
+          <motion.div
+            className="relative"
+            initial={{ y: 0 }}
+            animate={{ y: offset }}
+            transition={{
+              duration: isSpinning ? 5 : 0,
+              ease: isSpinning ? [0.25, 0.1, 0.25, 1] : "linear",
+            }}
+          >
+            {items.map((item, index) => {
+              // Determinar se é o penúltimo item (NÃO GANHOU que quase para)
+              const isPenultimate = index === items.length - 2;
+              const isLast = index === items.length - 1;
+              
+              return (
+                <motion.div
+                  key={item.id}
+                  className="flex items-center justify-center border-b border-gray-800"
+                  style={{ height: `${ITEM_HEIGHT}px` }}
+                  animate={
+                    isSpinning && isPenultimate
+                      ? {
+                          y: [0, -5, -10, -15, -20, -25, -30],
+                        }
+                      : {}
+                  }
+                  transition={
+                    isPenultimate
+                      ? {
+                          duration: 2,
+                          delay: 3,
+                          ease: "easeOut",
+                        }
+                      : {}
+                  }
+                >
+                  <span
+                    className="text-3xl font-black text-center px-4 whitespace-pre-line"
+                    style={{ 
+                      color: item.textColor,
+                      textShadow: `0 0 10px ${item.textColor}80, 0 0 20px ${item.textColor}40`,
+                      letterSpacing: '-1px'
+                    }}
+                  >
+                    {item.displayName}
+                  </span>
+                </motion.div>
+              );
+            })}
+          </motion.div>
+        </div>
+        
+        {/* Efeito de vidro/reflexo */}
+        <div className="absolute inset-4 rounded-xl pointer-events-none bg-gradient-to-br from-white/5 to-transparent" />
+      </div>
+    </div>
+  );
+};
