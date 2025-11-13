@@ -37,25 +37,6 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Verificar limite de giros (3 nas últimas 12 horas)
-    const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString();
-    const { data: recentSpins, error: spinsError } = await supabase
-      .from('spins')
-      .select('id')
-      .eq('whatsapp', whatsapp)
-      .gte('created_at', twelveHoursAgo);
-
-    if (spinsError) throw spinsError;
-
-    if (recentSpins && recentSpins.length >= 3) {
-      return new Response(
-        JSON.stringify({ 
-          error: 'limit_reached',
-          message: 'Você já usou suas 3 chances nas últimas 12 horas'
-        }),
-        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
 
     // Contar cupons já reivindicados hoje
     const todayStart = new Date();
