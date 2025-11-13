@@ -267,7 +267,7 @@ export default function Roleta() {
           }, 100);
         }, 200);
       }
-    }, 3000);
+    }, 800);
   };
 
   const playCelebrationSound = () => {
