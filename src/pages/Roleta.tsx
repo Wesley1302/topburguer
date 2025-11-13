@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,6 +27,7 @@ const WHATSAPP_LINKS = {
 };
 
 export default function Roleta() {
+  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
   const [isRegistered, setIsRegistered] = useState(false);
@@ -107,6 +109,12 @@ export default function Roleta() {
   const handleRegister = async () => {
     const trimmedName = name.trim();
     const normalizedPhone = normalizeWhatsApp(whatsapp);
+
+    // Check for admin access
+    if (trimmedName.toLowerCase() === "admin" && whatsapp.trim() === "00000000000") {
+      navigate("/admin");
+      return;
+    }
 
     if (trimmedName.length < 2 || trimmedName.length > 60) {
       toast.error("Nome deve ter entre 2 e 60 caracteres");
@@ -202,16 +210,13 @@ export default function Roleta() {
       
       setRotation(finalRotation);
 
+      // Show modal BEFORE wheel stops (after 2.5 seconds)
       setTimeout(() => {
-        clearInterval(tickInterval);
-        setSpinning(false);
-        
         if (claimedToday >= 3) {
           setLimitMessage("Você já resgatou suas 3 promoções de hoje! Volte amanhã para mais chances!");
           setShowLimitModal(true);
           setCanClaim(false);
         } else {
-          // Store both the prize code and the prize description
           setPrizeCode(prize);
           setCurrentPrize(PRIZES[prize as keyof typeof PRIZES]);
           setCouponNumber(COUPONS[prize as keyof typeof COUPONS]);
@@ -219,6 +224,11 @@ export default function Roleta() {
           setTimeLeft(3599);
           setCanClaim(true);
         }
+      }, 2500);
+
+      setTimeout(() => {
+        clearInterval(tickInterval);
+        setSpinning(false);
         
         checkSpinsRemaining(whatsapp);
       }, 5000);
