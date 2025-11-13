@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { WheelCanvas } from "@/components/WheelCanvas";
 
 const PRIZES = {
   COMBO: "Combo Completo (X-tudo + Batata PP + Coca 250ml) de R$28 por apenas R$19,90",
@@ -29,12 +30,12 @@ const WHATSAPP_LINKS = {
 // Mapeamento das fatias da roleta (6 fatias de 60° cada)
 // Fatias intercaladas: LOSE, HOTDOG, LOSE, XTUDO, LOSE, COMBO
 const WHEEL_SLICES = [
-  { id: 1, name: 'LOSE', angle: 0, file: 'FATIA_1_NAO_GANHOU.svg', displayName: 'Não ganhou', canWin: false },
-  { id: 2, name: 'HOTDOG', angle: 60, file: 'FATIA_2_HOTDOG.svg', displayName: 'Hot-Dog', canWin: true },
-  { id: 3, name: 'LOSE', angle: 120, file: 'FATIA_3_NAO_GANHOU.svg', displayName: 'Não ganhou', canWin: false },
-  { id: 4, name: 'XTUDO', angle: 180, file: 'FATIA_4_XTUDO.svg', displayName: 'X-tudo', canWin: true },
-  { id: 5, name: 'LOSE', angle: 240, file: 'FATIA_5_NAO_GANHOU.svg', displayName: 'Não ganhou', canWin: false },
-  { id: 6, name: 'COMBO', angle: 300, file: 'FATIA_6_COMBO_SIMPLES.svg', displayName: 'Combo Simples', canWin: true }
+  { id: 1, name: 'LOSE', angle: 0, displayName: 'NÃO\nGANHOU', color: '#d1d5db', textColor: '#7f1d1d', canWin: false },
+  { id: 2, name: 'HOTDOG', angle: 60, displayName: 'Hot-Dog\nSalsicha', color: '#451a03', textColor: '#22c55e', canWin: true },
+  { id: 3, name: 'LOSE', angle: 120, displayName: 'NÃO\nGANHOU', color: '#d1d5db', textColor: '#7f1d1d', canWin: false },
+  { id: 4, name: 'XTUDO', angle: 180, displayName: 'X-tudo', color: '#d97706', textColor: '#15803d', canWin: true },
+  { id: 5, name: 'LOSE', angle: 240, displayName: 'NÃO\nGANHOU', color: '#d1d5db', textColor: '#7f1d1d', canWin: false },
+  { id: 6, name: 'COMBO', angle: 300, displayName: 'Combo\nSimples', color: '#ea580c', textColor: '#15803d', canWin: true }
 ];
 
 // Função para detectar qual prêmio está sob o ponteiro fixo (cada fatia = 60°)
@@ -313,7 +314,7 @@ export default function Roleta() {
           <img src="/svg/ponteiro.svg" alt="Ponteiro" className="w-full h-full drop-shadow-lg" />
         </div>
 
-        {/* Rotating Wheel - Fatias SVG posicionadas em círculo */}
+        {/* Rotating Wheel - SVG programático */}
         <motion.div
           className="w-full h-full relative"
           animate={{ rotate: rotation }}
@@ -322,29 +323,7 @@ export default function Roleta() {
             ease: spinning ? [0.25, 0.1, 0.25, 1] : "linear",
           }}
         >
-          <div className="relative w-full h-full">
-            {WHEEL_SLICES.map((slice) => (
-              <div
-                key={slice.id}
-                className="absolute top-0 left-0 w-full h-full"
-                style={{
-                  clipPath: `polygon(50% 50%, 
-                    ${50 + 50 * Math.cos((slice.angle - 90) * Math.PI / 180)}% ${50 + 50 * Math.sin((slice.angle - 90) * Math.PI / 180)}%, 
-                    ${50 + 50 * Math.cos((slice.angle + 60 - 90) * Math.PI / 180)}% ${50 + 50 * Math.sin((slice.angle + 60 - 90) * Math.PI / 180)}%)`
-                }}
-              >
-                <img 
-                  src={`/svg/slices/${slice.file}`}
-                  alt={slice.displayName}
-                  className="w-full h-full object-cover"
-                  style={{
-                    transform: `rotate(${slice.angle}deg)`,
-                    transformOrigin: 'center center'
-                  }}
-                />
-              </div>
-            ))}
-          </div>
+          <WheelCanvas slices={WHEEL_SLICES} />
         </motion.div>
       </div>
 
