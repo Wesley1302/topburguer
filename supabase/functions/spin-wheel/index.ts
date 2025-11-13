@@ -8,12 +8,12 @@ const corsHeaders = {
 
 const PRIZES = ['COMBO', 'XTUDO', 'HOTDOG'];
 
-// Mapeamento preciso das fatias (mesmo do frontend)
-// Cada fatia tem 90 graus
-const PRIZE_ANGLE_RANGES = {
-  XTUDO: { min: 0, max: 90 },
-  HOTDOG: { min: 90, max: 180 },
-  COMBO: { min: 180, max: 270 }
+// Mapeamento das fatias (6 fatias de 60° cada)
+// Apenas prêmios válidos (nunca LOSE)
+const PRIZE_ANGLES = {
+  HOTDOG: 60,  // Fatia 2
+  XTUDO: 180,  // Fatia 4
+  COMBO: 300   // Fatia 6
 };
 
 serve(async (req) => {
@@ -64,9 +64,9 @@ serve(async (req) => {
       prize = 'HOTDOG';
     }
 
-    // Calcular ângulo aleatório dentro da fatia do prêmio
-    const prizeAngles = PRIZE_ANGLE_RANGES[prize as keyof typeof PRIZE_ANGLE_RANGES];
-    const targetAngle = prizeAngles.min + Math.random() * (prizeAngles.max - prizeAngles.min);
+    // Calcular ângulo aleatório dentro da fatia do prêmio (cada fatia = 60°)
+    const prizeBaseAngle = PRIZE_ANGLES[prize as keyof typeof PRIZE_ANGLES];
+    const targetAngle = prizeBaseAngle + Math.random() * 60;
 
     // Registrar giro
     const { error: insertError } = await supabase

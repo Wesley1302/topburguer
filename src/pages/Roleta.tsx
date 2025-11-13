@@ -26,30 +26,27 @@ const WHATSAPP_LINKS = {
   HOTDOG: "https://encurtador.com.br/CjgU",
 };
 
-// Mapeamento preciso das fatias da roleta (ângulos em graus)
-// Ponteiro fixo no topo (0°), roleta gira no sentido horário
+// Mapeamento das fatias da roleta (6 fatias de 60° cada)
+// Fatias intercaladas: LOSE, HOTDOG, LOSE, XTUDO, LOSE, COMBO
 const WHEEL_SLICES = [
-  { name: 'XTUDO', startAngle: 0, endAngle: 90, displayName: 'X-tudo' },
-  { name: 'HOTDOG', startAngle: 90, endAngle: 180, displayName: 'Hot-Dog' },
-  { name: 'COMBO', startAngle: 180, endAngle: 270, displayName: 'Combo Completo' },
-  { name: 'LOSE', startAngle: 270, endAngle: 360, displayName: 'Não ganhou' }
+  { id: 1, name: 'LOSE', angle: 0, file: 'FATIA_1_NAO_GANHOU.svg', displayName: 'Não ganhou', canWin: false },
+  { id: 2, name: 'HOTDOG', angle: 60, file: 'FATIA_2_HOTDOG.svg', displayName: 'Hot-Dog', canWin: true },
+  { id: 3, name: 'LOSE', angle: 120, file: 'FATIA_3_NAO_GANHOU.svg', displayName: 'Não ganhou', canWin: false },
+  { id: 4, name: 'XTUDO', angle: 180, file: 'FATIA_4_XTUDO.svg', displayName: 'X-tudo', canWin: true },
+  { id: 5, name: 'LOSE', angle: 240, file: 'FATIA_5_NAO_GANHOU.svg', displayName: 'Não ganhou', canWin: false },
+  { id: 6, name: 'COMBO', angle: 300, file: 'FATIA_6_COMBO_SIMPLES.svg', displayName: 'Combo Simples', canWin: true }
 ];
 
-// Função para detectar qual prêmio está sob o ponteiro fixo
+// Função para detectar qual prêmio está sob o ponteiro fixo (cada fatia = 60°)
 const detectPrizeAtPointer = (finalRotation: number): string => {
-  // Normalizar o ângulo para 0-360
   const normalizedAngle = ((finalRotation % 360) + 360) % 360;
-  
-  // Inverter porque a roleta gira no sentido horário
-  // mas queremos saber qual fatia está no ponteiro fixo (topo)
   const pointerAngle = (360 - normalizedAngle) % 360;
   
-  // Encontrar qual fatia está sob o ponteiro
-  const slice = WHEEL_SLICES.find(
-    s => pointerAngle >= s.startAngle && pointerAngle < s.endAngle
-  );
+  // Cada fatia tem 60 graus (360 / 6 = 60)
+  const sliceIndex = Math.floor(pointerAngle / 60) % 6;
+  const slice = WHEEL_SLICES[sliceIndex];
   
-  return slice ? slice.name : 'LOSE';
+  return slice.name;
 };
 
 export default function Roleta() {
@@ -197,18 +194,17 @@ export default function Roleta() {
       const { prize, targetAngle, claimedToday } = data;
       console.log('Spin result:', { prize, targetAngle, claimedToday });
       
-      // Encontrar a fatia do prêmio sorteado
-      const targetSlice = WHEEL_SLICES.find(s => s.name === prize);
+      // Encontrar a fatia do prêmio sorteado (apenas fatias que podem ganhar)
+      const targetSlice = WHEEL_SLICES.find(s => s.name === prize && s.canWin);
       if (!targetSlice) {
         toast.error("Erro ao processar o prêmio");
         setSpinning(false);
         return;
       }
 
-      // Calcular ângulo aleatório dentro da fatia do prêmio
-      const sliceRange = targetSlice.endAngle - targetSlice.startAngle;
-      const randomOffset = Math.random() * sliceRange;
-      const prizeAngle = targetSlice.startAngle + randomOffset;
+      // Calcular ângulo aleatório dentro da fatia do prêmio (60 graus cada fatia)
+      const randomOffset = Math.random() * 60;
+      const prizeAngle = targetSlice.angle + randomOffset;
       
       // Create Web Audio API tick sound
       if (!audioContextRef.current) {
@@ -250,10 +246,13 @@ export default function Roleta() {
       
       setRotation(finalRotation);
 
-      // Show modal BEFORE wheel stops (after 2.5 seconds) and STOP SOUND
+      // Parar som após 5s (fim da animação)
       setTimeout(() => {
-        clearInterval(tickInterval); // Stop sound immediately when modal appears
-        
+        clearInterval(tickInterval);
+      }, 5000);
+
+      // Mostrar modal 3 segundos APÓS a roleta parar (8s total)
+      setTimeout(() => {
         // Detectar o prêmio baseado no ângulo final
         const detectedPrize = detectPrizeAtPointer(finalRotation);
         
@@ -273,7 +272,7 @@ export default function Roleta() {
           setTimeLeft(3599);
           setCanClaim(true);
         }
-      }, 2500);
+      }, 8000);
 
       setTimeout(() => {
         setSpinning(false);
@@ -314,7 +313,7 @@ export default function Roleta() {
           <img src="/svg/ponteiro.svg" alt="Ponteiro" className="w-full h-full drop-shadow-lg" />
         </div>
 
-        {/* Rotating Wheel */}
+        {/* Rotating Wheel - Montada com fatias SVG separadas */}
         <motion.div
           className="w-full h-full relative"
           animate={{ rotate: rotation }}
@@ -323,7 +322,22 @@ export default function Roleta() {
             ease: spinning ? [0.25, 0.1, 0.25, 1] : "linear",
           }}
         >
-          <img src="/svg/roleta.svg" alt="Roleta" className="w-full h-full" />
+          {WHEEL_SLICES.map((slice) => (
+            <div
+              key={slice.id}
+              className="absolute inset-0"
+              style={{
+                transform: `rotate(${slice.angle}deg)`,
+                transformOrigin: 'center center'
+              }}
+            >
+              <img 
+                src={`/svg/slices/${slice.file}`}
+                alt={slice.displayName}
+                className="w-full h-full"
+              />
+            </div>
+          ))}
         </motion.div>
       </div>
 
