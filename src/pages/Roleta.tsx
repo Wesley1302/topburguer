@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { SlotMachineVisor } from "@/components/SlotMachineVisor";
-import { SlotMachineLever } from "@/components/SlotMachineLever";
 
 const PRIZES = {
   COMBO: "Combo Completo (X-tudo + Batata PP + Coca 250ml) de R$28 por apenas R$19,90",
@@ -48,6 +47,7 @@ export default function Roleta() {
   const [spinning, setSpinning] = useState(false);
   const [showPrizeModal, setShowPrizeModal] = useState(false);
   const [finalPrize, setFinalPrize] = useState("");
+  const [shouldResetVisor, setShouldResetVisor] = useState(false);
   const [currentPrize, setCurrentPrize] = useState<string>("");
   const [prizeCode, setPrizeCode] = useState<string>("");
   const [couponNumber, setCouponNumber] = useState<string>("");
@@ -244,21 +244,23 @@ export default function Roleta() {
     // Mostrar modal 3 segundos após o slot parar
     setTimeout(() => {
       if (prizeCode) {
-        const claimedToday = 0; // Esta informação vem do backend na resposta do spin
+        setCurrentPrize(PRIZES[prizeCode as keyof typeof PRIZES]);
+        setCouponNumber(COUPONS[prizeCode as keyof typeof COUPONS]);
+        setShowPrizeModal(true);
+        setTimeLeft(3599);
+        setCanClaim(true);
         
-        if (claimedToday >= 3) {
-          setLimitMessage("Você já resgatou suas 3 promoções de hoje! Volte amanhã para mais chances!");
-          setShowLimitModal(true);
-          setCanClaim(false);
-        } else {
-          setCurrentPrize(PRIZES[prizeCode as keyof typeof PRIZES]);
-          setCouponNumber(COUPONS[prizeCode as keyof typeof COUPONS]);
-          setShowPrizeModal(true);
-          setTimeLeft(3599);
-          setCanClaim(true);
-        }
+        // Resetar o visor após mostrar o modal
+        setTimeout(() => {
+          setShouldResetVisor(true);
+        }, 500);
       }
     }, 3000);
+  };
+
+  const handleCloseModal = () => {
+    setShowPrizeModal(false);
+    setShouldResetVisor(false);
   };
 
   const handleClaimCoupon = async () => {
@@ -283,7 +285,7 @@ export default function Roleta() {
       </div>
 
       {/* Slot Machine Section */}
-      <div className="relative w-full flex items-start justify-center gap-4 mb-8">
+      <div className="relative w-full flex flex-col items-center justify-center gap-6 mb-8">
         {/* Visor do Caça-Níquel */}
         <div className="flex-shrink-0">
           <SlotMachineVisor 
@@ -291,16 +293,19 @@ export default function Roleta() {
             isSpinning={spinning}
             finalPrize={finalPrize}
             onSpinComplete={handleSlotComplete}
+            shouldReset={shouldResetVisor}
           />
         </div>
 
-        {/* Alavanca */}
-        <div className="flex-shrink-0">
-          <SlotMachineLever
-            onPull={handleSpin}
-            disabled={!isRegistered || spinning}
-          />
-        </div>
+        {/* Botão Testar a Sorte */}
+        <Button
+          onClick={handleSpin}
+          disabled={!isRegistered || spinning}
+          size="lg"
+          className="w-full max-w-xs h-16 text-xl font-bold bg-gradient-to-r from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700 text-gray-900 shadow-xl hover:shadow-2xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {spinning ? "GIRANDO..." : "🎰 TESTAR A SORTE"}
+        </Button>
       </div>
 
       {/* Registration Modal */}
@@ -361,47 +366,37 @@ export default function Roleta() {
         </DialogContent>
       </Dialog>
 
-      {/* Prize Modal */}
+      {/* Prize Modal - X-TUDO */}
       <AnimatePresence>
-        {showPrizeModal && canClaim && (
-          <Dialog open={showPrizeModal} onOpenChange={setShowPrizeModal}>
-            <DialogContent className="sm:max-w-lg bg-card border-border">
+        {showPrizeModal && canClaim && prizeCode === 'XTUDO' && (
+          <Dialog open={showPrizeModal} onOpenChange={handleCloseModal}>
+            <DialogContent className="w-[95vw] max-w-md mx-auto bg-card border-border max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle className="text-2xl font-bold text-center text-primary">
-                  🎉 PARABÉNS, VOCÊ GANHOU! 🎉
+                  🎉 PARABÉNS! 🎉
                 </DialogTitle>
                 <DialogDescription className="text-center space-y-4 pt-4">
                   <p className="text-lg font-semibold text-foreground">
-                    Sua sorte chegou!
+                    Você ganhou um X-TUDO!
                   </p>
                   <p className="text-base text-foreground">
-                    Você acabou de ganhar: <span className="font-bold text-primary">{currentPrize}</span>
+                    {currentPrize}
                   </p>
                   <div className="bg-secondary/50 p-4 rounded-lg border border-primary/20">
                     <p className="text-sm font-medium text-muted-foreground mb-2">
-                      🎫 SEU CUPOM EXCLUSIVO:
+                      🎫 SEU CUPOM:
                     </p>
                     <p className="text-3xl font-bold text-primary tracking-wider">
-                      {couponNumber || "TOP-— — —"}
+                      {couponNumber}
                     </p>
                   </div>
                   <div className="bg-destructive/10 p-3 rounded-lg border border-destructive/20">
                     <p className="text-sm font-medium text-destructive">
-                      ⏰ ATENÇÃO: SUA OFERTA EXPIRA EM:
+                      ⏰ EXPIRA EM:
                     </p>
                     <p className="text-2xl font-bold text-destructive mt-1">
                       {formatTime(timeLeft)}
                     </p>
-                  </div>
-                  <div className="text-sm text-muted-foreground space-y-2 text-left">
-                    <p className="font-semibold">⚠️ Importante: Cada pessoa pode resgatar até 3 promoções por dia.</p>
-                    <p className="font-semibold text-primary">🚀 COMO RESGATAR AGORA:</p>
-                    <ol className="list-decimal list-inside space-y-1 pl-2">
-                      <li>Clique no botão verde abaixo</li>
-                      <li>Fale com nossa atendente no WhatsApp</li>
-                      <li>Informe seu cupom {couponNumber || "TOP-XXX"} e qual prêmio você ganhou</li>
-                      <li>Pronto! É só retirar e aproveitar! 😋</li>
-                    </ol>
                   </div>
                 </DialogDescription>
               </DialogHeader>
@@ -409,7 +404,97 @@ export default function Roleta() {
                 onClick={handleClaimCoupon}
                 className="w-full bg-green-600 hover:bg-green-700 text-white text-lg py-6"
               >
-                💬 RESGATAR NO WHATSAPP AGORA
+                💬 RESGATAR NO WHATSAPP
+              </Button>
+            </DialogContent>
+          </Dialog>
+        )}
+      </AnimatePresence>
+
+      {/* Prize Modal - HOTDOG */}
+      <AnimatePresence>
+        {showPrizeModal && canClaim && prizeCode === 'HOTDOG' && (
+          <Dialog open={showPrizeModal} onOpenChange={handleCloseModal}>
+            <DialogContent className="w-[95vw] max-w-md mx-auto bg-card border-border max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle className="text-2xl font-bold text-center text-primary">
+                  🎉 PARABÉNS! 🎉
+                </DialogTitle>
+                <DialogDescription className="text-center space-y-4 pt-4">
+                  <p className="text-lg font-semibold text-foreground">
+                    Você ganhou um HOT-DOG!
+                  </p>
+                  <p className="text-base text-foreground">
+                    {currentPrize}
+                  </p>
+                  <div className="bg-secondary/50 p-4 rounded-lg border border-primary/20">
+                    <p className="text-sm font-medium text-muted-foreground mb-2">
+                      🎫 SEU CUPOM:
+                    </p>
+                    <p className="text-3xl font-bold text-primary tracking-wider">
+                      {couponNumber}
+                    </p>
+                  </div>
+                  <div className="bg-destructive/10 p-3 rounded-lg border border-destructive/20">
+                    <p className="text-sm font-medium text-destructive">
+                      ⏰ EXPIRA EM:
+                    </p>
+                    <p className="text-2xl font-bold text-destructive mt-1">
+                      {formatTime(timeLeft)}
+                    </p>
+                  </div>
+                </DialogDescription>
+              </DialogHeader>
+              <Button
+                onClick={handleClaimCoupon}
+                className="w-full bg-green-600 hover:bg-green-700 text-white text-lg py-6"
+              >
+                💬 RESGATAR NO WHATSAPP
+              </Button>
+            </DialogContent>
+          </Dialog>
+        )}
+      </AnimatePresence>
+
+      {/* Prize Modal - COMBO */}
+      <AnimatePresence>
+        {showPrizeModal && canClaim && prizeCode === 'COMBO' && (
+          <Dialog open={showPrizeModal} onOpenChange={handleCloseModal}>
+            <DialogContent className="w-[95vw] max-w-md mx-auto bg-card border-border max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle className="text-2xl font-bold text-center text-primary">
+                  🎉 PARABÉNS! 🎉
+                </DialogTitle>
+                <DialogDescription className="text-center space-y-4 pt-4">
+                  <p className="text-lg font-semibold text-foreground">
+                    Você ganhou um COMBO SIMPLES!
+                  </p>
+                  <p className="text-base text-foreground">
+                    {currentPrize}
+                  </p>
+                  <div className="bg-secondary/50 p-4 rounded-lg border border-primary/20">
+                    <p className="text-sm font-medium text-muted-foreground mb-2">
+                      🎫 SEU CUPOM:
+                    </p>
+                    <p className="text-3xl font-bold text-primary tracking-wider">
+                      {couponNumber}
+                    </p>
+                  </div>
+                  <div className="bg-destructive/10 p-3 rounded-lg border border-destructive/20">
+                    <p className="text-sm font-medium text-destructive">
+                      ⏰ EXPIRA EM:
+                    </p>
+                    <p className="text-2xl font-bold text-destructive mt-1">
+                      {formatTime(timeLeft)}
+                    </p>
+                  </div>
+                </DialogDescription>
+              </DialogHeader>
+              <Button
+                onClick={handleClaimCoupon}
+                className="w-full bg-green-600 hover:bg-green-700 text-white text-lg py-6"
+              >
+                💬 RESGATAR NO WHATSAPP
               </Button>
             </DialogContent>
           </Dialog>
