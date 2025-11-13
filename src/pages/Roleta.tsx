@@ -313,7 +313,7 @@ export default function Roleta() {
           <img src="/svg/ponteiro.svg" alt="Ponteiro" className="w-full h-full drop-shadow-lg" />
         </div>
 
-        {/* Rotating Wheel - SVG com fatias combinadas */}
+        {/* Rotating Wheel - Fatias SVG posicionadas em círculo */}
         <motion.div
           className="w-full h-full relative"
           animate={{ rotate: rotation }}
@@ -322,56 +322,29 @@ export default function Roleta() {
             ease: spinning ? [0.25, 0.1, 0.25, 1] : "linear",
           }}
         >
-          <svg viewBox="0 0 400 400" className="w-full h-full">
-            <defs>
-              {WHEEL_SLICES.map((slice) => (
-                <pattern
-                  key={`pattern-${slice.id}`}
-                  id={`slice-${slice.id}`}
-                  patternUnits="objectBoundingBox"
-                  width="1"
-                  height="1"
-                >
-                  <image
-                    href={`/svg/slices/${slice.file}`}
-                    x="0"
-                    y="0"
-                    width="400"
-                    height="400"
-                    preserveAspectRatio="xMidYMid slice"
-                  />
-                </pattern>
-              ))}
-            </defs>
-            
-            {WHEEL_SLICES.map((slice, index) => {
-              const startAngle = slice.angle;
-              const endAngle = slice.angle + 60;
-              
-              // Converter ângulos para radianos
-              const startRad = (startAngle - 90) * Math.PI / 180;
-              const endRad = (endAngle - 90) * Math.PI / 180;
-              
-              // Calcular pontos do arco
-              const cx = 200;
-              const cy = 200;
-              const radius = 200;
-              
-              const x1 = cx + radius * Math.cos(startRad);
-              const y1 = cy + radius * Math.sin(startRad);
-              const x2 = cx + radius * Math.cos(endRad);
-              const y2 = cy + radius * Math.sin(endRad);
-              
-              return (
-                <path
-                  key={slice.id}
-                  d={`M ${cx} ${cy} L ${x1} ${y1} A ${radius} ${radius} 0 0 1 ${x2} ${y2} Z`}
-                  fill={`url(#slice-${slice.id})`}
-                  transform={`rotate(${slice.angle} 200 200)`}
+          <div className="relative w-full h-full">
+            {WHEEL_SLICES.map((slice) => (
+              <div
+                key={slice.id}
+                className="absolute top-0 left-0 w-full h-full"
+                style={{
+                  clipPath: `polygon(50% 50%, 
+                    ${50 + 50 * Math.cos((slice.angle - 90) * Math.PI / 180)}% ${50 + 50 * Math.sin((slice.angle - 90) * Math.PI / 180)}%, 
+                    ${50 + 50 * Math.cos((slice.angle + 60 - 90) * Math.PI / 180)}% ${50 + 50 * Math.sin((slice.angle + 60 - 90) * Math.PI / 180)}%)`
+                }}
+              >
+                <img 
+                  src={`/svg/slices/${slice.file}`}
+                  alt={slice.displayName}
+                  className="w-full h-full object-cover"
+                  style={{
+                    transform: `rotate(${slice.angle}deg)`,
+                    transformOrigin: 'center center'
+                  }}
                 />
-              );
-            })}
-          </svg>
+              </div>
+            ))}
+          </div>
         </motion.div>
       </div>
 
