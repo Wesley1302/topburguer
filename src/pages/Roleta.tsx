@@ -43,6 +43,7 @@ export default function Roleta() {
   const [showLimitModal, setShowLimitModal] = useState(false);
   const [limitMessage, setLimitMessage] = useState("");
   const [canClaim, setCanClaim] = useState(true);
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
   
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -77,6 +78,29 @@ export default function Roleta() {
       };
     }
   }, [showPrizeModal, timeLeft]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.visualViewport) {
+        const viewportHeight = window.visualViewport.height;
+        const windowHeight = window.innerHeight;
+        // Se o viewport diminuiu significativamente, o teclado está visível
+        setKeyboardVisible(windowHeight - viewportHeight > 150);
+      }
+    };
+
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', handleResize);
+      window.visualViewport.addEventListener('scroll', handleResize);
+    }
+
+    return () => {
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', handleResize);
+        window.visualViewport.removeEventListener('scroll', handleResize);
+      }
+    };
+  }, []);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -308,7 +332,7 @@ export default function Roleta() {
         if (!isRegistered) return;
         setShowRegisterModal(open);
       }}>
-        <DialogContent className="sm:max-w-md bg-card border-border sm:top-[5%]" onInteractOutside={(e) => {
+        <DialogContent className={`sm:max-w-md bg-card border-border transition-all duration-300 ${keyboardVisible ? 'fixed top-4 translate-y-0' : 'sm:top-[5%]'}`} onInteractOutside={(e) => {
           // Prevent closing when clicking outside if not registered
           if (!isRegistered) e.preventDefault();
         }} onEscapeKeyDown={(e) => {
