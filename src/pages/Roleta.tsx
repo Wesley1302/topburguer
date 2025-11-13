@@ -210,8 +210,10 @@ export default function Roleta() {
       
       setRotation(finalRotation);
 
-      // Show modal BEFORE wheel stops (after 2.5 seconds)
+      // Show modal BEFORE wheel stops (after 2.5 seconds) and STOP SOUND
       setTimeout(() => {
+        clearInterval(tickInterval); // Stop sound immediately when modal appears
+        
         if (claimedToday >= 3) {
           setLimitMessage("Você já resgatou suas 3 promoções de hoje! Volte amanhã para mais chances!");
           setShowLimitModal(true);
@@ -227,9 +229,7 @@ export default function Roleta() {
       }, 2500);
 
       setTimeout(() => {
-        clearInterval(tickInterval);
         setSpinning(false);
-        
         checkSpinsRemaining(whatsapp);
       }, 5000);
       
