@@ -28,14 +28,14 @@ const WHATSAPP_LINKS = {
 };
 
 // Mapeamento das fatias da roleta (6 fatias de 60° cada)
-// Fatias intercaladas: LOSE, HOTDOG, LOSE, XTUDO, LOSE, COMBO
+// Cores exatas da imagem de referência
 const WHEEL_SLICES = [
-  { id: 1, name: 'LOSE', angle: 0, displayName: 'NÃO\nGANHOU', color: '#d1d5db', textColor: '#7f1d1d', canWin: false },
-  { id: 2, name: 'HOTDOG', angle: 60, displayName: 'Hot-Dog\nSalsicha', color: '#451a03', textColor: '#22c55e', canWin: true },
-  { id: 3, name: 'LOSE', angle: 120, displayName: 'NÃO\nGANHOU', color: '#d1d5db', textColor: '#7f1d1d', canWin: false },
-  { id: 4, name: 'XTUDO', angle: 180, displayName: 'X-tudo', color: '#d97706', textColor: '#15803d', canWin: true },
-  { id: 5, name: 'LOSE', angle: 240, displayName: 'NÃO\nGANHOU', color: '#d1d5db', textColor: '#7f1d1d', canWin: false },
-  { id: 6, name: 'COMBO', angle: 300, displayName: 'Combo\nSimples', color: '#ea580c', textColor: '#15803d', canWin: true }
+  { id: 1, name: 'LOSE', angle: 0, displayName: 'NÃO\nGANHOU', color: '#e5e7eb', textColor: '#7f1d1d', canWin: false },
+  { id: 2, name: 'HOTDOG', angle: 60, displayName: 'Hot-Dog\nSalsicha', color: '#451a03', textColor: '#4ade80', canWin: true },
+  { id: 3, name: 'LOSE', angle: 120, displayName: 'NÃO\nGANHOU', color: '#e5e7eb', textColor: '#7f1d1d', canWin: false },
+  { id: 4, name: 'XTUDO', angle: 180, displayName: 'X-tudo', color: '#eab308', textColor: '#166534', canWin: true },
+  { id: 5, name: 'LOSE', angle: 240, displayName: 'NÃO\nGANHOU', color: '#e5e7eb', textColor: '#7f1d1d', canWin: false },
+  { id: 6, name: 'COMBO', angle: 300, displayName: 'Combo\nSimples', color: '#f97316', textColor: '#166534', canWin: true }
 ];
 
 // Função para detectar qual prêmio está sob o ponteiro fixo (cada fatia = 60°)
