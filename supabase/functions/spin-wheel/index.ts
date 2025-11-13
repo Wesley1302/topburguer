@@ -52,21 +52,32 @@ serve(async (req) => {
 
     const claimedToday = todayClaims ? todayClaims.length : 0;
 
-    // Sortear prêmio com probabilidades: COMBO 35%, XTUDO 32.5%, HOTDOG 32.5%
+    // Sortear prêmio com probabilidades variáveis para mais aleatoriedade
     const random = Math.random() * 100;
     let prize: string;
     
-    if (random < 35) {
+    // Adicionar micro-variação nas probabilidades a cada sorteio
+    const variation = (Math.random() - 0.5) * 10; // ±5% de variação
+    
+    if (random < (35 + variation)) {
       prize = 'COMBO';
-    } else if (random < 67.5) {
+    } else if (random < (67.5 + variation)) {
       prize = 'XTUDO';
     } else {
       prize = 'HOTDOG';
     }
 
-    // Calcular ângulo aleatório dentro da fatia do prêmio (cada fatia = 60°)
+    // Calcular ângulo com mais aleatoriedade
     const prizeBaseAngle = PRIZE_ANGLES[prize as keyof typeof PRIZE_ANGLES];
-    const targetAngle = prizeBaseAngle + Math.random() * 60;
+    
+    // Usar distribuição mais variada dentro da fatia
+    // Evitar sempre cair no centro da fatia
+    const angleOffset = Math.random() * 60;
+    const randomSkew = (Math.random() - 0.5) * 20; // Adicionar mais variação
+    const targetAngle = prizeBaseAngle + angleOffset + randomSkew;
+    
+    // Adicionar rotações extras aleatórias (entre 3 a 6 voltas completas)
+    const extraRotations = (3 + Math.random() * 3) * 360;
 
     // Registrar giro
     const { error: insertError } = await supabase
@@ -84,7 +95,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({
         prize,
-        targetAngle,
+        targetAngle: targetAngle + extraRotations,
         claimedToday
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
