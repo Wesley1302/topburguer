@@ -57,6 +57,34 @@ export default function Admin() {
     return whatsapp;
   };
 
+  const downloadCSV = () => {
+    // Create CSV content
+    const headers = ["Nome", "WhatsApp", "Data de Cadastro"];
+    const rows = leads.map(lead => [
+      lead.name,
+      formatWhatsApp(lead.whatsapp),
+      formatDate(lead.created_at)
+    ]);
+
+    const csvContent = [
+      headers.join(","),
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(","))
+    ].join("\n");
+
+    // Create blob and download
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    
+    link.setAttribute("href", url);
+    link.setAttribute("download", `leads_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = "hidden";
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-500 via-red-500 to-pink-500 p-4">
       <div className="max-w-7xl mx-auto">
@@ -66,15 +94,25 @@ export default function Admin() {
               <CardTitle className="text-3xl font-bold text-gray-800">
                 🎯 Painel Administrativo
               </CardTitle>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  localStorage.removeItem("registered");
-                  navigate("/");
-                }}
-              >
-                ← Voltar
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={downloadCSV}
+                  disabled={leads.length === 0}
+                  className="bg-green-50 hover:bg-green-100 text-green-700 border-green-300"
+                >
+                  📥 Baixar CSV
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    localStorage.removeItem("registered");
+                    navigate("/");
+                  }}
+                >
+                  ← Voltar
+                </Button>
+              </div>
             </div>
             <p className="text-gray-600 mt-2">
               Total de leads cadastrados: <strong>{leads.length}</strong>
@@ -103,7 +141,7 @@ export default function Admin() {
                   <TableBody>
                     {leads.map((lead) => (
                       <TableRow key={lead.id} className="hover:bg-gray-50">
-                        <TableCell className="font-medium">{lead.name}</TableCell>
+                        <TableCell className="font-medium text-black">{lead.name}</TableCell>
                         <TableCell>
                           <a
                             href={`https://wa.me/${lead.whatsapp}`}
