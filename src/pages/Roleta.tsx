@@ -26,6 +26,32 @@ const WHATSAPP_LINKS = {
   HOTDOG: "https://encurtador.com.br/CjgU",
 };
 
+// Mapeamento preciso das fatias da roleta (ângulos em graus)
+// Ponteiro fixo no topo (0°), roleta gira no sentido horário
+const WHEEL_SLICES = [
+  { name: 'XTUDO', startAngle: 0, endAngle: 90, displayName: 'X-tudo' },
+  { name: 'HOTDOG', startAngle: 90, endAngle: 180, displayName: 'Hot-Dog' },
+  { name: 'COMBO', startAngle: 180, endAngle: 270, displayName: 'Combo Completo' },
+  { name: 'LOSE', startAngle: 270, endAngle: 360, displayName: 'Não ganhou' }
+];
+
+// Função para detectar qual prêmio está sob o ponteiro fixo
+const detectPrizeAtPointer = (finalRotation: number): string => {
+  // Normalizar o ângulo para 0-360
+  const normalizedAngle = ((finalRotation % 360) + 360) % 360;
+  
+  // Inverter porque a roleta gira no sentido horário
+  // mas queremos saber qual fatia está no ponteiro fixo (topo)
+  const pointerAngle = (360 - normalizedAngle) % 360;
+  
+  // Encontrar qual fatia está sob o ponteiro
+  const slice = WHEEL_SLICES.find(
+    s => pointerAngle >= s.startAngle && pointerAngle < s.endAngle
+  );
+  
+  return slice ? slice.name : 'LOSE';
+};
+
 export default function Roleta() {
   const navigate = useNavigate();
   const [name, setName] = useState("");
@@ -195,6 +221,19 @@ export default function Roleta() {
       const { prize, targetAngle, claimedToday } = data;
       console.log('Spin result:', { prize, targetAngle, claimedToday });
       
+      // Encontrar a fatia do prêmio sorteado
+      const targetSlice = WHEEL_SLICES.find(s => s.name === prize);
+      if (!targetSlice) {
+        toast.error("Erro ao processar o prêmio");
+        setSpinning(false);
+        return;
+      }
+
+      // Calcular ângulo aleatório dentro da fatia do prêmio
+      const sliceRange = targetSlice.endAngle - targetSlice.startAngle;
+      const randomOffset = Math.random() * sliceRange;
+      const prizeAngle = targetSlice.startAngle + randomOffset;
+      
       // Create Web Audio API tick sound
       if (!audioContextRef.current) {
         audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -230,13 +269,21 @@ export default function Roleta() {
       const tickInterval = setInterval(playTick, 100);
       
       const spins = 3 + Math.random() * 2;
-      const finalRotation = rotation + 360 * spins + targetAngle;
+      // Inverter o ângulo porque queremos que a fatia gire até o ponteiro fixo
+      const finalRotation = rotation + 360 * spins + (360 - prizeAngle);
       
       setRotation(finalRotation);
 
       // Show modal BEFORE wheel stops (after 2.5 seconds) and STOP SOUND
       setTimeout(() => {
         clearInterval(tickInterval); // Stop sound immediately when modal appears
+        
+        // Detectar o prêmio baseado no ângulo final
+        const detectedPrize = detectPrizeAtPointer(finalRotation);
+        
+        console.log('Prêmio esperado:', prize);
+        console.log('Prêmio detectado:', detectedPrize);
+        console.log('Ângulo final normalizado:', ((finalRotation % 360) + 360) % 360);
         
         if (claimedToday >= 3) {
           setLimitMessage("Você já resgatou suas 3 promoções de hoje! Volte amanhã para mais chances!");
@@ -288,7 +335,7 @@ export default function Roleta() {
       {/* Wheel Section - Larger on mobile */}
       <div className="relative w-full max-w-[400px] aspect-square flex items-center justify-center mb-0">
         {/* Pointer (fixed at top) */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 z-20 w-16 h-16 md:w-20 md:h-20">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 w-16 h-16 md:w-20 md:h-20">
           <img src="/svg/ponteiro.svg" alt="Ponteiro" className="w-full h-full drop-shadow-lg" />
         </div>
 
