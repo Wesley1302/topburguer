@@ -58,21 +58,25 @@ export default function Admin() {
   };
 
   const downloadCSV = () => {
-    // Create CSV content
-    const headers = ["Nome", "WhatsApp", "Data de Cadastro"];
-    const rows = leads.map(lead => [
-      lead.name,
-      formatWhatsApp(lead.whatsapp),
-      formatDate(lead.created_at)
-    ]);
+    // Create CSV header
+    const csvRows = [];
+    csvRows.push("Nome,WhatsApp,Data e Hora");
 
-    const csvContent = [
-      headers.join(","),
-      ...rows.map(row => row.map(cell => `"${cell}"`).join(","))
-    ].join("\n");
+    // Add data rows
+    leads.forEach(lead => {
+      const name = lead.name.replace(/,/g, " "); // Remove commas from name
+      const phone = formatWhatsApp(lead.whatsapp);
+      const date = formatDate(lead.created_at);
+      
+      csvRows.push(`${name},${phone},${date}`);
+    });
 
-    // Create blob and download
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    // Join all rows with line breaks
+    const csvContent = csvRows.join("\n");
+
+    // Create blob with UTF-8 BOM for Excel compatibility
+    const BOM = "\uFEFF";
+    const blob = new Blob([BOM + csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
     const url = URL.createObjectURL(blob);
     
