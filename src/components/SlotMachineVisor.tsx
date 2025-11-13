@@ -112,12 +112,17 @@ export const SlotMachineVisor = ({ slices, isSpinning, finalPrize, onSpinComplet
           
           {/* Itens rolando */}
           <motion.div
-            className="relative"
+            className="relative will-change-transform"
             initial={{ y: 0 }}
             animate={{ y: offset }}
             transition={{
               duration: isSpinning ? 5 : 0,
-              ease: isSpinning ? [0.25, 0.1, 0.25, 1] : "linear",
+              ease: isSpinning ? [0.33, 0, 0.2, 1] : "linear",
+              type: "tween"
+            }}
+            style={{ 
+              transform: 'translateZ(0)',
+              backfaceVisibility: 'hidden' as const
             }}
           >
             {items.map((item, index) => {
@@ -128,8 +133,12 @@ export const SlotMachineVisor = ({ slices, isSpinning, finalPrize, onSpinComplet
               return (
                 <motion.div
                   key={item.id}
-                  className="flex items-center justify-center border-b border-gray-800"
-                  style={{ height: `${ITEM_HEIGHT}px` }}
+                  className="flex items-center justify-center border-b border-gray-800 will-change-transform"
+                  style={{ 
+                    height: `${ITEM_HEIGHT}px`,
+                    transform: 'translateZ(0)',
+                    backfaceVisibility: 'hidden' as const
+                  }}
                   animate={
                     isSpinning && isPenultimate
                       ? {
@@ -142,7 +151,8 @@ export const SlotMachineVisor = ({ slices, isSpinning, finalPrize, onSpinComplet
                       ? {
                           duration: 2,
                           delay: 3,
-                          ease: "easeOut",
+                          ease: [0.33, 0, 0.2, 1],
+                          type: "tween"
                         }
                       : {}
                   }
