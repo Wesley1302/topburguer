@@ -252,21 +252,68 @@ export default function Roleta() {
     setTimeout(() => {
       console.log('Opening modal with prizeCode:', prizeCode);
       if (prizeCode) {
+        // Tocar som de celebração
+        playCelebrationSound();
+        
         setShowPrizeModal(true);
         setTimeLeft(3599);
         setCanClaim(true);
+        
+        // Resetar o visor assim que o modal abrir
+        setTimeout(() => {
+          setShouldResetVisor(true);
+          setTimeout(() => {
+            setShouldResetVisor(false);
+          }, 100);
+        }, 200);
       }
     }, 3000);
+  };
+
+  const playCelebrationSound = () => {
+    try {
+      if (!audioContextRef.current) {
+        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      }
+      
+      const ctx = audioContextRef.current;
+      const now = ctx.currentTime;
+      
+      // Sequência de notas ascendente (celebração)
+      const notes = [523.25, 659.25, 783.99, 1046.50]; // Dó, Mi, Sol, Dó (oitava acima)
+      
+      notes.forEach((freq, i) => {
+        const oscillator = ctx.createOscillator();
+        const gainNode = ctx.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(ctx.destination);
+        
+        oscillator.frequency.value = freq;
+        oscillator.type = 'sine';
+        
+        const startTime = now + (i * 0.15);
+        const endTime = startTime + 0.3;
+        
+        gainNode.gain.setValueAtTime(0.3, startTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, endTime);
+        
+        oscillator.start(startTime);
+        oscillator.stop(endTime);
+      });
+      
+      // Vibração de celebração
+      if (navigator.vibrate) {
+        navigator.vibrate([100, 50, 100, 50, 100]);
+      }
+    } catch (e) {
+      console.log('Audio playback failed:', e);
+    }
   };
 
   const handleCloseModal = () => {
     console.log('Closing modal');
     setShowPrizeModal(false);
-    // Resetar o visor quando fechar o modal
-    setShouldResetVisor(true);
-    setTimeout(() => {
-      setShouldResetVisor(false);
-    }, 100);
   };
 
   const handleClaimCoupon = async () => {
