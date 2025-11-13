@@ -103,7 +103,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      increment_counter: { Args: { counter_key: string }; Returns: number }
     }
     Enums: {
       [_ in never]: never

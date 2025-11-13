@@ -142,15 +142,17 @@ export default function Roleta() {
       });
 
       if (error) {
-        if (error.message?.includes("429")) {
+        if (error.message?.includes("429") || error.message?.includes("limit_reached")) {
           const nextAvailable = new Date(Date.now() + 12 * 60 * 60 * 1000);
           setLimitMessage(`Você já usou seus 3 giros! Volte às ${nextAvailable.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`);
           setShowLimitModal(true);
+          setSpinning(false);
+          return;
         }
         throw error;
       }
 
-      const { prizeCode, targetAngle, claimsToday } = data;
+      const { prize, targetAngle, claimedToday } = data;
       
       // Sound and vibration
       if (!audioRef.current) {
@@ -179,12 +181,13 @@ export default function Roleta() {
         clearInterval(tickInterval);
         setSpinning(false);
         
-        if (claimsToday >= 3) {
+        if (claimedToday >= 3) {
           setLimitMessage("Você já resgatou suas 3 promoções de hoje! Volte amanhã para mais chances!");
           setShowLimitModal(true);
           setCanClaim(false);
         } else {
-          setCurrentPrize(PRIZES[prizeCode as keyof typeof PRIZES]);
+          const prizeKey = PRIZE_CODES[prize];
+          setCurrentPrize(PRIZES[prizeKey]);
           setShowPrizeModal(true);
           setTimeLeft(3599);
           setCouponNumber("");
@@ -194,7 +197,7 @@ export default function Roleta() {
         checkSpinsRemaining(whatsapp);
       }, 5000);
       
-    } catch (error: any) {
+    } catch (error) {
       console.error("[Roleta] Spin error:", error);
       setSpinning(false);
       toast.error("Erro ao girar. Tente novamente.");
@@ -203,8 +206,13 @@ export default function Roleta() {
 
   const handleClaimCoupon = async () => {
     try {
+      // Extrair o código do prêmio do texto completo
+      const prizeCode = Object.keys(PRIZES).find(
+        key => PRIZES[key as keyof typeof PRIZES] === currentPrize
+      );
+
       const { data, error } = await supabase.functions.invoke("claim-coupon", {
-        body: { whatsapp },
+        body: { whatsapp, prize: prizeCode },
       });
 
       if (error) throw error;
@@ -216,7 +224,7 @@ export default function Roleta() {
         window.location.href = "https://encurtador.com.br/eJNQ";
       }, 1000);
       
-    } catch (error: any) {
+    } catch (error) {
       console.error("[Roleta] Claim error:", error);
       toast.error("Erro ao gerar cupom. Tente novamente.");
     }
