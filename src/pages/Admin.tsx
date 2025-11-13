@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import {
   Table,
   TableBody,
@@ -89,6 +91,27 @@ export default function Admin() {
     document.body.removeChild(link);
   };
 
+  const handleDeleteLead = async (leadId: string, leadName: string) => {
+    if (!confirm(`Tem certeza que deseja deletar o lead "${leadName}"?`)) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from("leads")
+        .delete()
+        .eq("id", leadId);
+
+      if (error) throw error;
+
+      toast.success("Lead deletado com sucesso!");
+      fetchLeads(); // Recarrega a lista
+    } catch (error) {
+      console.error("Erro ao deletar lead:", error);
+      toast.error("Erro ao deletar lead. Tente novamente.");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-500 via-red-500 to-pink-500 p-4">
       <div className="max-w-7xl mx-auto">
@@ -140,6 +163,7 @@ export default function Admin() {
                       <TableHead className="font-bold">Nome</TableHead>
                       <TableHead className="font-bold">WhatsApp</TableHead>
                       <TableHead className="font-bold">Data de Cadastro</TableHead>
+                      <TableHead className="font-bold text-right">Ações</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -158,6 +182,16 @@ export default function Admin() {
                         </TableCell>
                         <TableCell className="text-gray-600">
                           {formatDate(lead.created_at)}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteLead(lead.id, lead.name)}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </TableCell>
                       </TableRow>
                     ))}
