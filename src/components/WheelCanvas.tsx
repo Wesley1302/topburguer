@@ -5,6 +5,7 @@ interface WheelSlice {
   color: string;
   textColor: string;
   canWin: boolean;
+  icon?: string;
 }
 
 interface WheelCanvasProps {
@@ -80,8 +81,10 @@ export const WheelCanvas = ({ slices }: WheelCanvasProps) => {
         const startAngle = index * sliceAngle;
         const endAngle = startAngle + sliceAngle;
         const middleAngle = startAngle + sliceAngle / 2;
-        const textRadius = radius * 0.65;
+        const textRadius = radius * 0.7;
+        const iconRadius = radius * 0.45;
         const textPos = polarToCartesian(middleAngle, textRadius);
+        const iconPos = polarToCartesian(middleAngle, iconRadius);
 
         return (
           <g key={slice.id}>
@@ -93,23 +96,39 @@ export const WheelCanvas = ({ slices }: WheelCanvasProps) => {
               strokeWidth="2"
             />
             
+            {/* Icon if available */}
+            {slice.icon && (
+              <image
+                href={slice.icon}
+                x={iconPos.x - 20}
+                y={iconPos.y - 20}
+                width="40"
+                height="40"
+                preserveAspectRatio="xMidYMid meet"
+              />
+            )}
+            
             {/* Text */}
             <text
               x={textPos.x}
               y={textPos.y}
               fill={slice.textColor}
-              fontSize="20"
-              fontWeight="bold"
+              fontSize="26"
+              fontWeight="900"
               textAnchor="middle"
               dominantBaseline="middle"
               transform={`rotate(${middleAngle}, ${textPos.x}, ${textPos.y})`}
-              style={{ fontFamily: 'Arial, sans-serif' }}
+              style={{ 
+                fontFamily: 'Arial, sans-serif',
+                textShadow: '0 0 8px rgba(0,0,0,0.5)',
+                letterSpacing: '-0.5px'
+              }}
             >
               {slice.displayName.split('\n').map((line, i) => (
                 <tspan
                   key={i}
                   x={textPos.x}
-                  dy={i === 0 ? 0 : '1.2em'}
+                  dy={i === 0 ? 0 : '1.1em'}
                 >
                   {line}
                 </tspan>

@@ -28,14 +28,14 @@ const WHATSAPP_LINKS = {
 };
 
 // Mapeamento das fatias da roleta (6 fatias de 60° cada)
-// Cores exatas da imagem de referência
+// Cores néon para destaque
 const WHEEL_SLICES = [
-  { id: 1, name: 'LOSE', angle: 0, displayName: 'NÃO\nGANHOU', color: '#e5e7eb', textColor: '#7f1d1d', canWin: false },
-  { id: 2, name: 'HOTDOG', angle: 60, displayName: 'Hot-Dog\nSalsicha', color: '#451a03', textColor: '#4ade80', canWin: true },
-  { id: 3, name: 'LOSE', angle: 120, displayName: 'NÃO\nGANHOU', color: '#e5e7eb', textColor: '#7f1d1d', canWin: false },
-  { id: 4, name: 'XTUDO', angle: 180, displayName: 'X-tudo', color: '#eab308', textColor: '#166534', canWin: true },
-  { id: 5, name: 'LOSE', angle: 240, displayName: 'NÃO\nGANHOU', color: '#e5e7eb', textColor: '#7f1d1d', canWin: false },
-  { id: 6, name: 'COMBO', angle: 300, displayName: 'Combo\nSimples', color: '#f97316', textColor: '#166534', canWin: true }
+  { id: 1, name: 'LOSE', angle: 0, displayName: 'NÃO\nGANHOU', color: '#e5e7eb', textColor: '#ff0040', canWin: false },
+  { id: 2, name: 'HOTDOG', angle: 60, displayName: 'Hot-Dog\nSalsicha', color: '#451a03', textColor: '#39ff14', canWin: true, icon: '' },
+  { id: 3, name: 'LOSE', angle: 120, displayName: 'NÃO\nGANHOU', color: '#e5e7eb', textColor: '#ff0040', canWin: false },
+  { id: 4, name: 'XTUDO', angle: 180, displayName: 'X-tudo', color: '#eab308', textColor: '#39ff14', canWin: true, icon: '' },
+  { id: 5, name: 'LOSE', angle: 240, displayName: 'NÃO\nGANHOU', color: '#e5e7eb', textColor: '#ff0040', canWin: false },
+  { id: 6, name: 'COMBO', angle: 300, displayName: 'Combo\nSimples', color: '#f97316', textColor: '#39ff14', canWin: true, icon: '' }
 ];
 
 // Função para detectar qual prêmio está sob o ponteiro fixo (cada fatia = 60°)
@@ -67,10 +67,42 @@ export default function Roleta() {
   const [limitMessage, setLimitMessage] = useState("");
   const [canClaim, setCanClaim] = useState(true);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const [wheelSlices, setWheelSlices] = useState(WHEEL_SLICES);
   
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Gerar ícones ao carregar
+  useEffect(() => {
+    const generateIcons = async () => {
+      try {
+        const iconTypes = ['burger', 'hotdog', 'combo'];
+        const generatedIcons: Record<string, string> = {};
+
+        for (const type of iconTypes) {
+          const { data, error } = await supabase.functions.invoke('generate-wheel-icons', {
+            body: { iconType: type }
+          });
+
+          if (!error && data?.imageUrl) {
+            generatedIcons[type] = data.imageUrl;
+          }
+        }
+
+        setWheelSlices(prev => prev.map(slice => {
+          if (slice.name === 'XTUDO') return { ...slice, icon: generatedIcons.burger };
+          if (slice.name === 'HOTDOG') return { ...slice, icon: generatedIcons.hotdog };
+          if (slice.name === 'COMBO') return { ...slice, icon: generatedIcons.combo };
+          return slice;
+        }));
+      } catch (error) {
+        console.error('Error generating icons:', error);
+      }
+    };
+
+    generateIcons();
+  }, []);
 
   // Limpar localStorage ao carregar a página para sempre resetar o cadastro
   useEffect(() => {
@@ -196,7 +228,7 @@ export default function Roleta() {
       console.log('Spin result:', { prize, targetAngle, claimedToday });
       
       // Encontrar a fatia do prêmio sorteado (apenas fatias que podem ganhar)
-      const targetSlice = WHEEL_SLICES.find(s => s.name === prize && s.canWin);
+      const targetSlice = wheelSlices.find(s => s.name === prize && s.canWin);
       if (!targetSlice) {
         toast.error("Erro ao processar o prêmio");
         setSpinning(false);
@@ -323,7 +355,7 @@ export default function Roleta() {
             ease: spinning ? [0.25, 0.1, 0.25, 1] : "linear",
           }}
         >
-          <WheelCanvas slices={WHEEL_SLICES} />
+          <WheelCanvas slices={wheelSlices} />
         </motion.div>
       </div>
 
