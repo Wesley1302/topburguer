@@ -167,6 +167,8 @@ export default function Roleta() {
   const handleSpin = async () => {
     if (spinning) return;
 
+    // Reset do visor antes de começar
+    setShouldResetVisor(false);
     setSpinning(true);
     
     try {
@@ -184,8 +186,13 @@ export default function Roleta() {
       const { prize, targetAngle, claimedToday } = data;
       console.log('Spin result:', { prize, targetAngle, claimedToday });
       
-      // Salvar prêmio para exibir depois
+      // Salvar informações do prêmio ANTES de iniciar animação
       setPrizeCode(prize);
+      setCurrentPrize(PRIZES[prize as keyof typeof PRIZES]);
+      setCouponNumber(COUPONS[prize as keyof typeof COUPONS]);
+      
+      // Definir o prêmio final para o slot
+      setFinalPrize(prize);
       
       // Create Web Audio API tick sound
       if (!audioContextRef.current) {
@@ -220,18 +227,17 @@ export default function Roleta() {
       };
 
       const tickInterval = setInterval(playTick, 100);
-      
-      // Definir o prêmio final para o slot
-      setFinalPrize(prize);
 
       // Parar som após 5s (fim da animação)
       setTimeout(() => {
         clearInterval(tickInterval);
       }, 5000);
 
+      // Aguardar a animação terminar antes de mostrar o modal
       setTimeout(() => {
         setSpinning(false);
-      }, 5000);
+        console.log('Animation complete, showing modal for prize:', prize);
+      }, 8000);
       
     } catch (error) {
       console.error("[Roleta] Spin error:", error);
@@ -241,26 +247,26 @@ export default function Roleta() {
   };
 
   const handleSlotComplete = () => {
-    // Mostrar modal 3 segundos após o slot parar
+    // Mostrar modal após o slot parar (chamado pelo SlotMachineVisor)
+    console.log('Slot animation complete, will show modal in 3s');
     setTimeout(() => {
+      console.log('Opening modal with prizeCode:', prizeCode);
       if (prizeCode) {
-        setCurrentPrize(PRIZES[prizeCode as keyof typeof PRIZES]);
-        setCouponNumber(COUPONS[prizeCode as keyof typeof COUPONS]);
         setShowPrizeModal(true);
         setTimeLeft(3599);
         setCanClaim(true);
-        
-        // Resetar o visor após mostrar o modal
-        setTimeout(() => {
-          setShouldResetVisor(true);
-        }, 500);
       }
     }, 3000);
   };
 
   const handleCloseModal = () => {
+    console.log('Closing modal');
     setShowPrizeModal(false);
-    setShouldResetVisor(false);
+    // Resetar o visor quando fechar o modal
+    setShouldResetVisor(true);
+    setTimeout(() => {
+      setShouldResetVisor(false);
+    }, 100);
   };
 
   const handleClaimCoupon = async () => {
