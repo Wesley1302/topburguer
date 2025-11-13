@@ -308,7 +308,7 @@ export default function Roleta() {
         if (!isRegistered) return;
         setShowRegisterModal(open);
       }}>
-        <DialogContent className="sm:max-w-md bg-card border-border" onInteractOutside={(e) => {
+        <DialogContent className="sm:max-w-md bg-card border-border sm:top-[20%]" onInteractOutside={(e) => {
           // Prevent closing when clicking outside if not registered
           if (!isRegistered) e.preventDefault();
         }} onEscapeKeyDown={(e) => {
@@ -354,7 +354,7 @@ export default function Roleta() {
               onClick={handleRegister}
               className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
             >
-              Começar a Girar
+              Testar minha sorte
             </Button>
           </div>
         </DialogContent>
