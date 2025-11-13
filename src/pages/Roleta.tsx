@@ -13,10 +13,16 @@ const PRIZES = {
   HOTDOG: "Hot-Dog Salsicha de R$17 por apenas R$11,90",
 };
 
-const PRIZE_CODES: Record<string, keyof typeof PRIZES> = {
-  COMBO: "COMBO",
-  XTUDO: "XTUDO",
-  HOTDOG: "HOTDOG",
+const COUPONS = {
+  COMBO: "TOP-COMBOS",
+  XTUDO: "TOP-XTUDO",
+  HOTDOG: "TOP-HOTDOG",
+};
+
+const WHATSAPP_LINKS = {
+  COMBO: "https://encurtador.com.br/DWXb",
+  XTUDO: "https://encurtador.com.br/fKWp",
+  HOTDOG: "https://encurtador.com.br/CjgU",
 };
 
 export default function Roleta() {
@@ -28,6 +34,7 @@ export default function Roleta() {
   const [rotation, setRotation] = useState(0);
   const [showPrizeModal, setShowPrizeModal] = useState(false);
   const [currentPrize, setCurrentPrize] = useState<string>("");
+  const [prizeCode, setPrizeCode] = useState<string>("");
   const [couponNumber, setCouponNumber] = useState<string>("");
   const [timeLeft, setTimeLeft] = useState(3599);
   const [spinsRemaining, setSpinsRemaining] = useState(3);
@@ -204,11 +211,12 @@ export default function Roleta() {
           setShowLimitModal(true);
           setCanClaim(false);
         } else {
-          const prizeKey = PRIZE_CODES[prize];
-          setCurrentPrize(PRIZES[prizeKey]);
+          // Store both the prize code and the prize description
+          setPrizeCode(prize);
+          setCurrentPrize(PRIZES[prize as keyof typeof PRIZES]);
+          setCouponNumber(COUPONS[prize as keyof typeof COUPONS]);
           setShowPrizeModal(true);
           setTimeLeft(3599);
-          setCouponNumber("");
           setCanClaim(true);
         }
         
@@ -224,29 +232,15 @@ export default function Roleta() {
 
   const handleClaimCoupon = async () => {
     try {
-      // Extrair o código do prêmio do texto completo
-      const prizeCode = Object.keys(PRIZES).find(
-        key => PRIZES[key as keyof typeof PRIZES] === currentPrize
-      );
-
-      const { data, error } = await supabase.functions.invoke("claim-coupon", {
-        body: { whatsapp, prize: prizeCode },
-      });
-
-      if (error) throw error;
-
-      console.log('Coupon claim response:', data);
-      const formattedCoupon = `TOP-${data.couponNumber.toString().padStart(3, "0")}`;
-      console.log('Formatted coupon:', formattedCoupon);
-      setCouponNumber(formattedCoupon);
-
+      const whatsappLink = WHATSAPP_LINKS[prizeCode as keyof typeof WHATSAPP_LINKS];
+      
       setTimeout(() => {
-        window.location.href = "https://encurtador.com.br/eJNQ";
-      }, 1000);
+        window.location.href = whatsappLink;
+      }, 500);
       
     } catch (error) {
       console.error("[Roleta] Claim error:", error);
-      toast.error("Erro ao gerar cupom. Tente novamente.");
+      toast.error("Erro ao redirecionar. Tente novamente.");
     }
   };
 
@@ -396,10 +390,10 @@ export default function Roleta() {
                   <Button
                     size="lg"
                     onClick={handleClaimCoupon}
-                    disabled={timeLeft === 0 || !!couponNumber}
+                    disabled={timeLeft === 0}
                     className="w-full h-14 text-lg font-bold bg-green-600 hover:bg-green-700 text-white shadow-lg disabled:opacity-50"
                   >
-                    {timeLeft === 0 ? "OFERTA EXPIRADA" : couponNumber ? "REDIRECIONANDO..." : "✅ RESGATAR PROMOÇÃO AGORA"}
+                    {timeLeft === 0 ? "OFERTA EXPIRADA" : "✅ RESGATAR PROMOÇÃO AGORA"}
                   </Button>
                 </DialogDescription>
               </DialogHeader>
