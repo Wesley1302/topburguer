@@ -80,10 +80,11 @@ serve(async (req) => {
       prize = 'HOTDOG';
     }
 
-    // Calcular ângulo alvo com pequeno jitter (±2 graus)
+    // Calcular ângulo alvo (centro da fatia ±15° para alinhamento perfeito)
     const baseAngle = PRIZE_ANGLES[prize as keyof typeof PRIZE_ANGLES];
-    const jitter = (Math.random() - 0.5) * 4; // -2 a +2 graus
-    const targetAngle = baseAngle + jitter;
+    const centerOffset = 30; // Centro da fatia de 60°
+    const jitter = (Math.random() - 0.5) * 30; // -15 a +15 graus
+    const targetAngle = baseAngle + centerOffset + jitter;
 
     // Registrar giro
     const { error: insertError } = await supabase

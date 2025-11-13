@@ -36,6 +36,7 @@ export default function Roleta() {
   const [canClaim, setCanClaim] = useState(true);
   
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -153,20 +154,37 @@ export default function Roleta() {
       }
 
       const { prize, targetAngle, claimedToday } = data;
+      console.log('Spin result:', { prize, targetAngle, claimedToday });
       
-      // Sound and vibration
-      if (!audioRef.current) {
-        audioRef.current = new Audio("/sounds/tick.mp3");
-        audioRef.current.volume = 0.5;
+      // Create Web Audio API tick sound
+      if (!audioContextRef.current) {
+        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
       }
       
       const playTick = () => {
-        if (audioRef.current) {
-          audioRef.current.currentTime = 0;
-          audioRef.current.play().catch(() => {});
-        }
-        if (navigator.vibrate) {
-          navigator.vibrate(12);
+        try {
+          if (audioContextRef.current) {
+            const oscillator = audioContextRef.current.createOscillator();
+            const gainNode = audioContextRef.current.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContextRef.current.destination);
+            
+            oscillator.frequency.value = 800; // Hz
+            oscillator.type = 'square';
+            
+            gainNode.gain.setValueAtTime(0.3, audioContextRef.current.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContextRef.current.currentTime + 0.05);
+            
+            oscillator.start(audioContextRef.current.currentTime);
+            oscillator.stop(audioContextRef.current.currentTime + 0.05);
+          }
+          
+          if (navigator.vibrate) {
+            navigator.vibrate(12);
+          }
+        } catch (e) {
+          console.log('Audio playback failed:', e);
         }
       };
 
@@ -217,7 +235,9 @@ export default function Roleta() {
 
       if (error) throw error;
 
+      console.log('Coupon claim response:', data);
       const formattedCoupon = `TOP-${data.couponNumber.toString().padStart(3, "0")}`;
+      console.log('Formatted coupon:', formattedCoupon);
       setCouponNumber(formattedCoupon);
 
       setTimeout(() => {
@@ -261,7 +281,7 @@ export default function Roleta() {
       <div className="flex flex-col items-center gap-4 w-full max-w-md">
         <div className="text-center space-y-2">
           <h1 className="text-3xl md:text-4xl font-bold text-primary animate-glow">
-            GIRE E GANHE!
+            Está com sorte?
           </h1>
           <p className="text-muted-foreground text-sm md:text-base">
             Você tem {spinsRemaining} {spinsRemaining === 1 ? "giro disponível" : "giros disponíveis"}
@@ -279,8 +299,18 @@ export default function Roleta() {
       </div>
 
       {/* Registration Modal */}
-      <Dialog open={showRegisterModal} onOpenChange={setShowRegisterModal}>
-        <DialogContent className="sm:max-w-md bg-card border-border">
+      <Dialog open={showRegisterModal} onOpenChange={(open) => {
+        // Prevent closing the modal
+        if (!isRegistered) return;
+        setShowRegisterModal(open);
+      }}>
+        <DialogContent className="sm:max-w-md bg-card border-border" onInteractOutside={(e) => {
+          // Prevent closing when clicking outside if not registered
+          if (!isRegistered) e.preventDefault();
+        }} onEscapeKeyDown={(e) => {
+          // Prevent closing with ESC key if not registered
+          if (!isRegistered) e.preventDefault();
+        }}>
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold text-center text-primary">
               Cadastre-se para Participar

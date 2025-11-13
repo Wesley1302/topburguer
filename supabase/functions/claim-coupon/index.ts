@@ -56,6 +56,7 @@ serve(async (req) => {
     if (counterError) throw counterError;
 
     const couponNumber = counterData;
+    console.log('Counter incremented to:', couponNumber);
 
     // Registrar cupom
     const { error: insertError } = await supabase
@@ -66,9 +67,12 @@ serve(async (req) => {
         coupon_number: couponNumber
       });
 
-    if (insertError) throw insertError;
+    if (insertError) {
+      console.error('Failed to insert coupon claim:', insertError);
+      throw insertError;
+    }
 
-    console.log('Coupon claimed:', { couponNumber, prize });
+    console.log('Coupon claimed successfully:', { couponNumber, prize, whatsapp });
 
     return new Response(
       JSON.stringify({ couponNumber }),
