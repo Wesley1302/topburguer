@@ -47,7 +47,7 @@ export const WheelCanvas = ({ slices }: WheelCanvasProps) => {
         cx={centerX}
         cy={centerY}
         r={outerRedRadius}
-        fill="#dc2626"
+        fill="#ef4444"
         stroke="none"
       />
       
@@ -59,8 +59,8 @@ export const WheelCanvas = ({ slices }: WheelCanvasProps) => {
             key={angle}
             cx={pos.x}
             cy={pos.y}
-            r="10"
-            fill="#fbbf24"
+            r="12"
+            fill="#fde047"
             stroke="none"
           />
         );
@@ -123,10 +123,10 @@ export const WheelCanvas = ({ slices }: WheelCanvasProps) => {
       <circle
         cx={centerX}
         cy={centerY}
-        r="25"
-        fill="#d97706"
-        stroke="white"
-        strokeWidth="3"
+        r="28"
+        fill="#facc15"
+        stroke="#f59e0b"
+        strokeWidth="4"
       />
     </svg>
   );
