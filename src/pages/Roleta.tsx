@@ -423,41 +423,57 @@ export default function Roleta() {
       <AnimatePresence>
         {showPrizeModal && canClaim && prizeCode === 'XTUDO' && (
           <Dialog open={showPrizeModal} onOpenChange={handleCloseModal}>
-            <DialogContent className="w-[95vw] max-w-md mx-auto bg-card border-border max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle className="text-2xl font-bold text-center text-primary">
-                  🎉 PARABÉNS! 🎉
+            <DialogContent className="w-[95vw] max-w-md mx-auto bg-card border-border max-h-[95vh] overflow-y-auto p-4 sm:p-6">
+              <DialogHeader className="space-y-2">
+                <DialogTitle className="text-xl sm:text-2xl font-bold text-center text-primary">
+                  🎉 PARABÉNS, VOCÊ GANHOU!
                 </DialogTitle>
-                <DialogDescription className="text-center space-y-4 pt-4">
-                  <p className="text-lg font-semibold text-foreground">
-                    Você ganhou um X-TUDO!
+                <DialogDescription className="text-center space-y-3 pt-2">
+                  <p className="text-base sm:text-lg font-semibold text-foreground">
+                    Sua sorte chegou!
                   </p>
-                  <p className="text-base text-foreground">
+                  <p className="text-sm sm:text-base text-foreground">
                     {currentPrize}
                   </p>
-                  <div className="bg-secondary/50 p-4 rounded-lg border border-primary/20">
-                    <p className="text-sm font-medium text-muted-foreground mb-2">
-                      🎫 SEU CUPOM:
+                  <div className="bg-secondary/50 p-3 sm:p-4 rounded-lg border border-primary/20">
+                    <p className="text-xs sm:text-sm font-medium text-muted-foreground mb-1">
+                      🎫 SEU CUPOM EXCLUSIVO:
                     </p>
-                    <p className="text-3xl font-bold text-primary tracking-wider">
+                    <p className="text-2xl sm:text-3xl font-bold text-primary tracking-wider">
                       {couponNumber}
                     </p>
                   </div>
-                  <div className="bg-destructive/10 p-3 rounded-lg border border-destructive/20">
-                    <p className="text-sm font-medium text-destructive">
-                      ⏰ EXPIRA EM:
+                  <div className="bg-destructive/10 p-2.5 sm:p-3 rounded-lg border border-destructive/20">
+                    <p className="text-xs sm:text-sm font-medium text-destructive">
+                      ⏰ ATENÇÃO: SUA OFERTA EXPIRA EM:
                     </p>
-                    <p className="text-2xl font-bold text-destructive mt-1">
+                    <p className="text-xl sm:text-2xl font-bold text-destructive mt-1">
                       {formatTime(timeLeft)}
                     </p>
+                  </div>
+                  <div className="bg-yellow-500/10 p-2.5 rounded border border-yellow-500/20">
+                    <p className="text-xs text-yellow-700 dark:text-yellow-300">
+                      ⚠️ Importante: Cada pessoa pode resgatar até 3 promoções por dia.
+                    </p>
+                  </div>
+                  <div className="text-left space-y-1.5 pt-2">
+                    <p className="text-xs sm:text-sm font-medium text-primary">
+                      🚀 COMO RESGATAR AGORA:
+                    </p>
+                    <ol className="text-xs sm:text-sm text-foreground/80 space-y-1 pl-4">
+                      <li>1. Clique no botão verde abaixo</li>
+                      <li>2. Fale com nossa atendente no WhatsApp</li>
+                      <li>3. Informe seu cupom {couponNumber} e qual prêmio você ganhou</li>
+                      <li>4. Pronto! É só retirar e aproveitar! 😋</li>
+                    </ol>
                   </div>
                 </DialogDescription>
               </DialogHeader>
               <Button
                 onClick={handleClaimCoupon}
-                className="w-full bg-green-600 hover:bg-green-700 text-white text-lg py-6"
+                className="w-full bg-green-600 hover:bg-green-700 text-white text-base sm:text-lg py-5 sm:py-6 mt-2"
               >
-                💬 RESGATAR NO WHATSAPP
+                ✅ RESGATAR PROMOÇÃO AGORA
               </Button>
             </DialogContent>
           </Dialog>
@@ -468,41 +484,57 @@ export default function Roleta() {
       <AnimatePresence>
         {showPrizeModal && canClaim && prizeCode === 'HOTDOG' && (
           <Dialog open={showPrizeModal} onOpenChange={handleCloseModal}>
-            <DialogContent className="w-[95vw] max-w-md mx-auto bg-card border-border max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle className="text-2xl font-bold text-center text-primary">
-                  🎉 PARABÉNS! 🎉
+            <DialogContent className="w-[95vw] max-w-md mx-auto bg-card border-border max-h-[95vh] overflow-y-auto p-4 sm:p-6">
+              <DialogHeader className="space-y-2">
+                <DialogTitle className="text-xl sm:text-2xl font-bold text-center text-primary">
+                  🎉 PARABÉNS, VOCÊ GANHOU!
                 </DialogTitle>
-                <DialogDescription className="text-center space-y-4 pt-4">
-                  <p className="text-lg font-semibold text-foreground">
-                    Você ganhou um HOT-DOG!
+                <DialogDescription className="text-center space-y-3 pt-2">
+                  <p className="text-base sm:text-lg font-semibold text-foreground">
+                    Sua sorte chegou!
                   </p>
-                  <p className="text-base text-foreground">
+                  <p className="text-sm sm:text-base text-foreground">
                     {currentPrize}
                   </p>
-                  <div className="bg-secondary/50 p-4 rounded-lg border border-primary/20">
-                    <p className="text-sm font-medium text-muted-foreground mb-2">
-                      🎫 SEU CUPOM:
+                  <div className="bg-secondary/50 p-3 sm:p-4 rounded-lg border border-primary/20">
+                    <p className="text-xs sm:text-sm font-medium text-muted-foreground mb-1">
+                      🎫 SEU CUPOM EXCLUSIVO:
                     </p>
-                    <p className="text-3xl font-bold text-primary tracking-wider">
+                    <p className="text-2xl sm:text-3xl font-bold text-primary tracking-wider">
                       {couponNumber}
                     </p>
                   </div>
-                  <div className="bg-destructive/10 p-3 rounded-lg border border-destructive/20">
-                    <p className="text-sm font-medium text-destructive">
-                      ⏰ EXPIRA EM:
+                  <div className="bg-destructive/10 p-2.5 sm:p-3 rounded-lg border border-destructive/20">
+                    <p className="text-xs sm:text-sm font-medium text-destructive">
+                      ⏰ ATENÇÃO: SUA OFERTA EXPIRA EM:
                     </p>
-                    <p className="text-2xl font-bold text-destructive mt-1">
+                    <p className="text-xl sm:text-2xl font-bold text-destructive mt-1">
                       {formatTime(timeLeft)}
                     </p>
+                  </div>
+                  <div className="bg-yellow-500/10 p-2.5 rounded border border-yellow-500/20">
+                    <p className="text-xs text-yellow-700 dark:text-yellow-300">
+                      ⚠️ Importante: Cada pessoa pode resgatar até 3 promoções por dia.
+                    </p>
+                  </div>
+                  <div className="text-left space-y-1.5 pt-2">
+                    <p className="text-xs sm:text-sm font-medium text-primary">
+                      🚀 COMO RESGATAR AGORA:
+                    </p>
+                    <ol className="text-xs sm:text-sm text-foreground/80 space-y-1 pl-4">
+                      <li>1. Clique no botão verde abaixo</li>
+                      <li>2. Fale com nossa atendente no WhatsApp</li>
+                      <li>3. Informe seu cupom {couponNumber} e qual prêmio você ganhou</li>
+                      <li>4. Pronto! É só retirar e aproveitar! 😋</li>
+                    </ol>
                   </div>
                 </DialogDescription>
               </DialogHeader>
               <Button
                 onClick={handleClaimCoupon}
-                className="w-full bg-green-600 hover:bg-green-700 text-white text-lg py-6"
+                className="w-full bg-green-600 hover:bg-green-700 text-white text-base sm:text-lg py-5 sm:py-6 mt-2"
               >
-                💬 RESGATAR NO WHATSAPP
+                ✅ RESGATAR PROMOÇÃO AGORA
               </Button>
             </DialogContent>
           </Dialog>
@@ -513,41 +545,57 @@ export default function Roleta() {
       <AnimatePresence>
         {showPrizeModal && canClaim && prizeCode === 'COMBO' && (
           <Dialog open={showPrizeModal} onOpenChange={handleCloseModal}>
-            <DialogContent className="w-[95vw] max-w-md mx-auto bg-card border-border max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle className="text-2xl font-bold text-center text-primary">
-                  🎉 PARABÉNS! 🎉
+            <DialogContent className="w-[95vw] max-w-md mx-auto bg-card border-border max-h-[95vh] overflow-y-auto p-4 sm:p-6">
+              <DialogHeader className="space-y-2">
+                <DialogTitle className="text-xl sm:text-2xl font-bold text-center text-primary">
+                  🎉 PARABÉNS, VOCÊ GANHOU!
                 </DialogTitle>
-                <DialogDescription className="text-center space-y-4 pt-4">
-                  <p className="text-lg font-semibold text-foreground">
-                    Você ganhou um COMBO SIMPLES!
+                <DialogDescription className="text-center space-y-3 pt-2">
+                  <p className="text-base sm:text-lg font-semibold text-foreground">
+                    Sua sorte chegou!
                   </p>
-                  <p className="text-base text-foreground">
+                  <p className="text-sm sm:text-base text-foreground">
                     {currentPrize}
                   </p>
-                  <div className="bg-secondary/50 p-4 rounded-lg border border-primary/20">
-                    <p className="text-sm font-medium text-muted-foreground mb-2">
-                      🎫 SEU CUPOM:
+                  <div className="bg-secondary/50 p-3 sm:p-4 rounded-lg border border-primary/20">
+                    <p className="text-xs sm:text-sm font-medium text-muted-foreground mb-1">
+                      🎫 SEU CUPOM EXCLUSIVO:
                     </p>
-                    <p className="text-3xl font-bold text-primary tracking-wider">
+                    <p className="text-2xl sm:text-3xl font-bold text-primary tracking-wider">
                       {couponNumber}
                     </p>
                   </div>
-                  <div className="bg-destructive/10 p-3 rounded-lg border border-destructive/20">
-                    <p className="text-sm font-medium text-destructive">
-                      ⏰ EXPIRA EM:
+                  <div className="bg-destructive/10 p-2.5 sm:p-3 rounded-lg border border-destructive/20">
+                    <p className="text-xs sm:text-sm font-medium text-destructive">
+                      ⏰ ATENÇÃO: SUA OFERTA EXPIRA EM:
                     </p>
-                    <p className="text-2xl font-bold text-destructive mt-1">
+                    <p className="text-xl sm:text-2xl font-bold text-destructive mt-1">
                       {formatTime(timeLeft)}
                     </p>
+                  </div>
+                  <div className="bg-yellow-500/10 p-2.5 rounded border border-yellow-500/20">
+                    <p className="text-xs text-yellow-700 dark:text-yellow-300">
+                      ⚠️ Importante: Cada pessoa pode resgatar até 3 promoções por dia.
+                    </p>
+                  </div>
+                  <div className="text-left space-y-1.5 pt-2">
+                    <p className="text-xs sm:text-sm font-medium text-primary">
+                      🚀 COMO RESGATAR AGORA:
+                    </p>
+                    <ol className="text-xs sm:text-sm text-foreground/80 space-y-1 pl-4">
+                      <li>1. Clique no botão verde abaixo</li>
+                      <li>2. Fale com nossa atendente no WhatsApp</li>
+                      <li>3. Informe seu cupom {couponNumber} e qual prêmio você ganhou</li>
+                      <li>4. Pronto! É só retirar e aproveitar! 😋</li>
+                    </ol>
                   </div>
                 </DialogDescription>
               </DialogHeader>
               <Button
                 onClick={handleClaimCoupon}
-                className="w-full bg-green-600 hover:bg-green-700 text-white text-lg py-6"
+                className="w-full bg-green-600 hover:bg-green-700 text-white text-base sm:text-lg py-5 sm:py-6 mt-2"
               >
-                💬 RESGATAR NO WHATSAPP
+                ✅ RESGATAR PROMOÇÃO AGORA
               </Button>
             </DialogContent>
           </Dialog>
