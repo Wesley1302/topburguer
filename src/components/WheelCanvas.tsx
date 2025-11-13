@@ -81,7 +81,7 @@ export const WheelCanvas = ({ slices }: WheelCanvasProps) => {
         const startAngle = index * sliceAngle;
         const endAngle = startAngle + sliceAngle;
         const middleAngle = startAngle + sliceAngle / 2;
-        const textRadius = radius * 0.7;
+        const textRadius = radius * 0.78; // Movido para mais perto da borda
         const iconRadius = radius * 0.45;
         const textPos = polarToCartesian(middleAngle, textRadius);
         const iconPos = polarToCartesian(middleAngle, iconRadius);
@@ -113,7 +113,7 @@ export const WheelCanvas = ({ slices }: WheelCanvasProps) => {
               x={textPos.x}
               y={textPos.y}
               fill={slice.textColor}
-              fontSize="26"
+              fontSize="22"
               fontWeight="900"
               textAnchor="middle"
               dominantBaseline="middle"
