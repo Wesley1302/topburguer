@@ -27,11 +27,11 @@ export const SlotMachineVisor = ({ slices, isSpinning, finalPrize, onSpinComplet
 
   // Criar sequência de itens para o slot
   useEffect(() => {
-    // Criar uma sequência longa de itens aleatórios
-    const sequence: SlotItem[] = [];
-    
     if (isSpinning) {
       setIsComplete(false);
+      
+      // Criar uma sequência longa de itens aleatórios
+      const sequence: SlotItem[] = [];
       
       // Adicionar muitos itens aleatórios
       for (let i = 0; i < 30; i++) {
@@ -54,13 +54,14 @@ export const SlotMachineVisor = ({ slices, isSpinning, finalPrize, onSpinComplet
       
       setItems(sequence);
       
-      // Animar
-      setTimeout(() => {
-        const finalOffset = -(sequence.length - 1) * ITEM_HEIGHT + ITEM_HEIGHT;
-        setOffset(finalOffset);
-      }, 100);
+      // Usar requestAnimationFrame para garantir que a animação comece suave
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          const finalOffset = -(sequence.length - 1) * ITEM_HEIGHT + ITEM_HEIGHT;
+          setOffset(finalOffset);
+        });
+      });
     }
-    // Resetar quando shouldReset for true
   }, [isSpinning, finalPrize, slices]);
 
   // Reset do visor quando shouldReset mudar
