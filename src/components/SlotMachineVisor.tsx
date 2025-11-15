@@ -54,12 +54,12 @@ export const SlotMachineVisor = ({ slices, isSpinning, finalPrize, onSpinComplet
       
       setItems(sequence);
       
-      // Usar requestAnimationFrame para garantir que a animação comece suave
+      // Definir offset final ANTES de começar a animação
+      const finalOffset = -(sequence.length - 1) * ITEM_HEIGHT + ITEM_HEIGHT;
+      
+      // Usar requestAnimationFrame para garantir renderização suave
       requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          const finalOffset = -(sequence.length - 1) * ITEM_HEIGHT + ITEM_HEIGHT;
-          setOffset(finalOffset);
-        });
+        setOffset(finalOffset);
       });
     }
   }, [isSpinning, finalPrize, slices]);
