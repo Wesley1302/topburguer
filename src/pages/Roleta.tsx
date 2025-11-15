@@ -751,7 +751,6 @@ export default function Roleta() {
                       <li>Clique no botão verde abaixo</li>
                       <li>Fale com nossa atendente no WhatsApp</li>
                       <li>Informe seu cupom {couponNumber || "TOP-XXX"} e qual prêmio você ganhou</li>
-                      <li>Pronto! É só retirar e aproveitar! 😋</li>
                     </ol>
                   </div>
                   <Button
