@@ -353,7 +353,7 @@ export default function Roleta() {
         {/* Botão Testar a Sorte */}
         <Button
           onClick={handleSpin}
-          disabled={!isRegistered || spinning}
+          disabled={!isRegistered || spinning || showPrizeModal}
           size="lg"
           className="w-full max-w-xs h-16 text-xl font-bold bg-gradient-to-r from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700 text-gray-900 shadow-xl hover:shadow-2xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
