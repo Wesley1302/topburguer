@@ -442,8 +442,11 @@ export default function Roleta() {
                     <p className="text-base sm:text-lg font-semibold text-foreground">
                       Sua sorte chegou!
                     </p>
-                    <p className="text-sm sm:text-base text-foreground">
-                      X-tudo de <span className="text-red-500 font-semibold">R$17</span> por apenas <span className="text-green-600 font-semibold">R$11,90</span>
+                    <p className="text-sm sm:text-base">
+                      <span className="text-foreground">X-tudo de </span>
+                      <span className="text-red-500 font-semibold">R$17</span>
+                      <span className="text-foreground"> por apenas </span>
+                      <span className="text-green-600 font-semibold">R$11,90</span>
                     </p>
                     <div className="bg-secondary/50 p-3 sm:p-4 rounded-lg border border-primary/20">
                       <p className="text-xs sm:text-sm font-medium text-muted-foreground mb-1">
@@ -507,8 +510,11 @@ export default function Roleta() {
                     <p className="text-base sm:text-lg font-semibold text-foreground">
                       Sua sorte chegou!
                     </p>
-                    <p className="text-sm sm:text-base text-foreground">
-                      Hot-Dog Salsicha de <span className="text-red-500 font-semibold">R$17</span> por apenas <span className="text-green-600 font-semibold">R$11,90</span>
+                    <p className="text-sm sm:text-base">
+                      <span className="text-foreground">Hot-Dog Salsicha de </span>
+                      <span className="text-red-500 font-semibold">R$17</span>
+                      <span className="text-foreground"> por apenas </span>
+                      <span className="text-green-600 font-semibold">R$11,90</span>
                     </p>
                     <div className="bg-secondary/50 p-3 sm:p-4 rounded-lg border border-primary/20">
                       <p className="text-xs sm:text-sm font-medium text-muted-foreground mb-1">
@@ -572,8 +578,11 @@ export default function Roleta() {
                     <p className="text-base sm:text-lg font-semibold text-foreground">
                       Sua sorte chegou!
                     </p>
-                    <p className="text-sm sm:text-base text-foreground">
-                      Combo Completo (X-tudo + Batata PP + Coca 250ml) de <span className="text-red-500 font-semibold">R$28</span> por apenas <span className="text-green-600 font-semibold">R$19,90</span>
+                    <p className="text-sm sm:text-base">
+                      <span className="text-foreground">Combo Completo (X-tudo + Batata PP + Coca 250ml) de </span>
+                      <span className="text-red-500 font-semibold">R$28</span>
+                      <span className="text-foreground"> por apenas </span>
+                      <span className="text-green-600 font-semibold">R$19,90</span>
                     </p>
                     <div className="bg-secondary/50 p-3 sm:p-4 rounded-lg border border-primary/20">
                       <p className="text-xs sm:text-sm font-medium text-muted-foreground mb-1">
