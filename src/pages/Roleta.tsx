@@ -730,6 +730,7 @@ export default function Roleta() {
                   </div>
                   <div className="text-sm text-muted-foreground space-y-2 text-left">
                     <p className="font-semibold">⚠️ Importante: Cada pessoa pode resgatar até 3 promoções por dia.</p>
+                    <p className="text-base font-bold text-primary uppercase tracking-wide">🚚 PROMOÇÃO VÁLIDA APENAS PARA DELIVERY</p>
                     <p className="font-semibold text-primary">🚀 COMO RESGATAR AGORA:</p>
                     <ol className="list-decimal list-inside space-y-1 pl-2">
                       <li>Clique no botão verde abaixo</li>
