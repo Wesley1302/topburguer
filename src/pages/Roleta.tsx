@@ -199,6 +199,9 @@ export default function Roleta() {
         audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
       }
       
+      let tickCount = 0;
+      const totalTicks = 60; // 6 segundos a 100ms = 60 ticks
+      
       const playTick = () => {
         try {
           if (audioContextRef.current) {
@@ -208,18 +211,24 @@ export default function Roleta() {
             oscillator.connect(gainNode);
             gainNode.connect(audioContextRef.current.destination);
             
-            oscillator.frequency.value = 800; // Hz
-            oscillator.type = 'square';
+            // Frequência aumenta gradualmente para sensação de tensão
+            const frequency = 1200 + (tickCount / totalTicks) * 200; // 1200 Hz → 1400 Hz
+            oscillator.frequency.value = frequency;
+            oscillator.type = 'sine'; // Som mais suave
             
-            gainNode.gain.setValueAtTime(0.3, audioContextRef.current.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContextRef.current.currentTime + 0.05);
+            // Volume diminui gradualmente
+            const volume = 0.25 - (tickCount / totalTicks) * 0.1; // 0.25 → 0.15
+            gainNode.gain.setValueAtTime(volume, audioContextRef.current.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContextRef.current.currentTime + 0.04);
             
             oscillator.start(audioContextRef.current.currentTime);
-            oscillator.stop(audioContextRef.current.currentTime + 0.05);
+            oscillator.stop(audioContextRef.current.currentTime + 0.04);
+            
+            tickCount++;
           }
           
           if (navigator.vibrate) {
-            navigator.vibrate(12);
+            navigator.vibrate(10);
           }
         } catch (e) {
           console.log('Audio playback failed:', e);
@@ -228,16 +237,16 @@ export default function Roleta() {
 
       const tickInterval = setInterval(playTick, 100);
 
-      // Parar som após 5s (fim da animação)
+      // Parar som após 6s (fim da animação)
       setTimeout(() => {
         clearInterval(tickInterval);
-      }, 5000);
+      }, 6000);
 
       // Aguardar a animação terminar antes de mostrar o modal
       setTimeout(() => {
         setSpinning(false);
         console.log('Animation complete, showing modal for prize:', prize);
-      }, 8000);
+      }, 9000);
       
     } catch (error) {
       console.error("[Roleta] Spin error:", error);
@@ -357,7 +366,7 @@ export default function Roleta() {
           size="lg"
           className="w-full max-w-xs h-16 text-xl font-bold bg-gradient-to-r from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700 text-gray-900 shadow-xl hover:shadow-2xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {spinning ? "GIRANDO..." : "🎰 TESTAR A SORTE"}
+          {spinning ? "GIRANDO..." : "TESTAR A SORTE"}
         </Button>
       </div>
 

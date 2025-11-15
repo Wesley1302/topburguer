@@ -25,6 +25,11 @@ export const SlotMachineVisor = ({ slices, isSpinning, finalPrize, onSpinComplet
   const VISIBLE_ITEMS = 3;
   const TOTAL_HEIGHT = ITEM_HEIGHT * VISIBLE_ITEMS;
 
+  // Inicializar visor na primeira montagem para evitar engasgo
+  useEffect(() => {
+    setItems(slices.slice(0, 5).map((s, i) => ({ ...s, id: i })));
+  }, []);
+
   // Criar sequência de itens para o slot
   useEffect(() => {
     if (isSpinning) {
@@ -33,8 +38,9 @@ export const SlotMachineVisor = ({ slices, isSpinning, finalPrize, onSpinComplet
       // Criar uma sequência longa de itens aleatórios
       const sequence: SlotItem[] = [];
       
-      // Adicionar muitos itens aleatórios
-      for (let i = 0; i < 30; i++) {
+      // Adicionar itens aleatórios (variar quantidade para mais randomização)
+      const randomCount = Math.floor(Math.random() * 10) + 35; // 35-45 itens
+      for (let i = 0; i < randomCount; i++) {
         const randomSlice = slices[Math.floor(Math.random() * slices.length)];
         sequence.push({ ...randomSlice, id: i });
       }
@@ -52,15 +58,18 @@ export const SlotMachineVisor = ({ slices, isSpinning, finalPrize, onSpinComplet
         sequence.push({ ...finalSlice, id: sequence.length });
       }
       
+      // Primeiro atualizar items
       setItems(sequence);
       
-      // Definir offset final ANTES de começar a animação
+      // Definir offset final
       const finalOffset = -(sequence.length - 1) * ITEM_HEIGHT + ITEM_HEIGHT;
       
-      // Usar requestAnimationFrame para garantir renderização suave
-      requestAnimationFrame(() => {
-        setOffset(finalOffset);
-      });
+      // Esperar o React renderizar os items antes de iniciar animação
+      setTimeout(() => {
+        requestAnimationFrame(() => {
+          setOffset(finalOffset);
+        });
+      }, 0);
     }
   }, [isSpinning, finalPrize, slices]);
 
@@ -75,7 +84,7 @@ export const SlotMachineVisor = ({ slices, isSpinning, finalPrize, onSpinComplet
 
   useEffect(() => {
     if (isSpinning && offset < 0 && !isComplete) {
-      const duration = 5000; // 5 segundos
+      const duration = 6000; // 6 segundos
       const timer = setTimeout(() => {
         setIsComplete(true);
         onSpinComplete();
@@ -117,7 +126,7 @@ export const SlotMachineVisor = ({ slices, isSpinning, finalPrize, onSpinComplet
             initial={{ y: 0 }}
             animate={{ y: offset }}
             transition={{
-              duration: isSpinning ? 5 : 0,
+              duration: isSpinning ? 6 : 0,
               ease: isSpinning ? [0.33, 0, 0.2, 1] : "linear",
               type: "tween"
             }}
