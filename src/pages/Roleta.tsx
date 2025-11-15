@@ -714,11 +714,8 @@ export default function Roleta() {
                 <DialogTitle className="text-2xl font-bold text-center text-primary">
                   🎉 PARABÉNS, VOCÊ GANHOU! 🎉
                 </DialogTitle>
-                <DialogDescription className="text-center space-y-4 pt-4">
-                  <p className="text-lg font-semibold text-foreground">
-                    Sua sorte chegou!
-                  </p>
-                  <p className="text-base text-foreground">
+                  <DialogDescription className="text-center space-y-4 pt-4">
+                    <p className="text-base text-foreground">
                     Você acabou de ganhar: <span className="font-bold text-primary">{currentPrize}</span>
                   </p>
                   <div className="bg-secondary/50 p-4 rounded-lg border border-primary/20">
